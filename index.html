@@ -1748,13 +1748,23 @@ function updatePublicClock(){
   if(t) t.textContent=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
 }
 function renderPublicDashboard(){
+  const semua=FBDB.get()||[];
   // Stok dari admin/pusat saja
  // const adminData=FBDB._c.filter(x=>x.userId==='admin'||!x.userId);
   //const stok=adminData.reduce((s,x)=>x.type==='k'?s+Number(x.qty||0):s-Number(x.qty||0),0);
-  const semua = FBDB.get();
-  const stokAdmin=semua.filter(x=>x.userId==='admin'||!x.userId).reduce((s,x)=>x.type==='k'?s+Number(x.qty||0):s-Number(x.qty||0),0);
-  const stokKirim=TRANSFERDB.get().reduce((s,t)=>s+Number(t.qty||0),0);
+   if(!semua.length) return; // tunggu data
+
+  const stokAdmin = semua
+    .filter(x => x.userId === 'admin' || !x.userId)
+    .reduce((s, x) => x.type === 'k'
+      ? s + Number(x.qty || 0)
+      : s - Number(x.qty || 0), 0);
+
+  const stokKirim = (TRANSFERDB.get() || [])
+    .reduce((s, t) => s + Number(t.qty || 0), 0);
   const stok=stokAdmin-stokKirim;
+  document.getElementById('publicStok').textContent = stok.toFixed(1);
+
   const hp=CONFIGDB.get().hargaPublik||0;
   const se=document.getElementById('publicStok');
   const he=document.getElementById('publicHarga');
