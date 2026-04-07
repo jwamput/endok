@@ -845,7 +845,15 @@ window.simpanTransfer=async function(){
   if(!agenId||!tgl||!qty||!harga){showToast('Semua field wajib diisi','error');return}
   const ag=_users.find(u=>u.id===agenId);
   try{
-    await addDoc(collection(db,'transaksi_transfer'),{agen_id:agenId,agen_nama:ag?.nama||'',tanggal:tgl,qty,harga_jual:harga,catatan:note||`Transfer ke ${ag?.nama||''}`,created:serverTimestamp()});
+    await addDoc(collection(db,'transaksi_transfer'),{
+  agen_id:agenId,
+  agen_nama:ag?.nama||'',
+  tanggal:tgl,
+  qty,
+  harga_transfer:harga,
+  catatan:note,
+  created:serverTimestamp()
+});
     // Also record as sell for admin FIFO
     await addDoc(collection(db,'transaksi_jual'),{tanggal:tgl,qty,harga_jual:harga,catatan:`Transfer ke ${ag?.nama||''}`,agen_id:agenId,created:serverTimestamp()});
     showToast('Transfer berhasil disimpan ✅');
