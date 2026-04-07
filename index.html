@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NdokkMu — Distributor Telur</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --yolk: #F5A623;
+    --yolk-dark: #D4891A;
+    --shell: #FFF8EE;
+    --brown: #3D2B1F;
+    --brown-mid: #7A4F3A;
+    --cream: #FAF0DC;
+    --green: #2ECC71;
+    --red: #E74C3C;
+    --card-bg: #FFFFFF;
+    --shadow: 0 4px 24px rgba(61,43,31,0.10);
+    --radius: 18px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--shell);
+    color: var(--brown);
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--brown);
+    padding: 0 32px;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 64px;
+    position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 2px 12px rgba(61,43,31,0.25);
+  }
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.6rem; font-weight: 800;
+    color: var(--yolk);
+    letter-spacing: -1px;
+  }
+  .logo span { color: #fff; font-weight: 400; font-size: 1rem; margin-left: 8px; vertical-align: middle; }
+  .header-right { display: flex; gap: 12px; align-items: center; }
+  .btn-login {
+    background: var(--yolk); color: var(--brown);
+    border: none; border-radius: 30px;
+    padding: 8px 22px; font-family: 'Syne', sans-serif;
+    font-weight: 700; font-size: 0.9rem; cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    text-decoration: none; display: inline-flex; align-items: center; gap: 6px;
+  }
+  .btn-login:hover { background: var(--yolk-dark); transform: scale(1.04); }
+
+  /* HERO */
+  .hero {
+    background: linear-gradient(135deg, var(--brown) 60%, var(--brown-mid));
+    color: #fff;
+    padding: 52px 32px 40px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '🥚';
+    font-size: 120px;
+    position: absolute;
+    right: 60px; top: 10px;
+    opacity: 0.12;
+    transform: rotate(-20deg);
+  }
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 2.2rem; font-weight: 800;
+    color: var(--yolk);
+    margin-bottom: 8px;
+  }
+  .hero p { color: #ddd; font-size: 1rem; max-width: 480px; margin: 0 auto 24px; }
+  .hero-stats {
+    display: flex; gap: 24px; justify-content: center; flex-wrap: wrap;
+  }
+  .hero-stat {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: var(--radius);
+    padding: 16px 28px;
+    text-align: center;
+    backdrop-filter: blur(4px);
+  }
+  .hero-stat .val {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.7rem; font-weight: 800;
+    color: var(--yolk);
+  }
+  .hero-stat .lbl { font-size: 0.78rem; color: #bbb; margin-top: 2px; }
+
+  /* DATETIME TICKER */
+  .ticker {
+    background: var(--yolk);
+    color: var(--brown);
+    text-align: center;
+    padding: 8px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    letter-spacing: 1px;
+  }
+
+  /* MAIN CONTENT */
+  .main { max-width: 1100px; margin: 0 auto; padding: 32px 20px; }
+  
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.2rem; font-weight: 700;
+    color: var(--brown);
+    margin-bottom: 16px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .section-title::after {
+    content: '';
+    flex: 1; height: 2px;
+    background: linear-gradient(to right, var(--yolk), transparent);
+    border-radius: 2px;
+  }
+
+  /* HARGA CARD */
+  .harga-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+  .harga-card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 22px 20px;
+    box-shadow: var(--shadow);
+    border-left: 5px solid var(--yolk);
+    transition: transform 0.2s;
+  }
+  .harga-card:hover { transform: translateY(-3px); }
+  .harga-card .lbl { font-size: 0.78rem; color: #999; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+  .harga-card .val {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.5rem; font-weight: 800;
+    color: var(--brown);
+    margin: 6px 0 4px;
+  }
+  .harga-card .sub { font-size: 0.82rem; color: var(--brown-mid); }
+
+  /* AGENT LIST */
+  .agent-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+  .agent-card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: var(--shadow);
+    display: flex; flex-direction: column; gap: 10px;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .agent-card:hover { transform: translateY(-3px); box-shadow: 0 8px 32px rgba(61,43,31,0.15); }
+  .agent-header { display: flex; align-items: center; gap: 12px; }
+  .agent-avatar {
+    width: 44px; height: 44px;
+    background: linear-gradient(135deg, var(--yolk), var(--yolk-dark));
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800; color: var(--brown); font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+  .agent-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1rem; color: var(--brown); }
+  .agent-addr { font-size: 0.83rem; color: #888; display: flex; align-items: flex-start; gap: 4px; }
+  .agent-footer { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .agent-harga {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700; font-size: 1rem;
+    color: var(--brown-mid);
+  }
+  .agent-harga span { font-size: 0.75rem; font-weight: 400; color: #aaa; display: block; }
+  .btn-wa {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: #25D366; color: #fff;
+    border-radius: 24px; padding: 7px 16px;
+    font-size: 0.82rem; font-weight: 600;
+    text-decoration: none;
+    transition: background 0.2s, transform 0.1s;
+  }
+  .btn-wa:hover { background: #1da851; transform: scale(1.04); }
+  .badge-stok {
+    font-size: 0.75rem;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-weight: 600;
+  }
+  .badge-ada { background: #e8faf0; color: var(--green); }
+  .badge-kosong { background: #fef0ee; color: var(--red); }
+
+  /* LOGIN MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(61,43,31,0.6);
+    backdrop-filter: blur(4px);
+    z-index: 200;
+    align-items: center; justify-content: center;
+  }
+  .modal-overlay.active { display: flex; }
+  .modal {
+    background: var(--card-bg);
+    border-radius: 24px;
+    padding: 36px 32px;
+    width: 100%; max-width: 380px;
+    box-shadow: 0 20px 60px rgba(61,43,31,0.3);
+    position: relative;
+    animation: popIn 0.25s ease;
+  }
+  @keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .modal-close {
+    position: absolute; top: 16px; right: 20px;
+    background: none; border: none;
+    font-size: 1.4rem; color: #aaa; cursor: pointer;
+  }
+  .modal h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.4rem; font-weight: 800;
+    color: var(--brown); margin-bottom: 6px;
+  }
+  .modal p { font-size: 0.85rem; color: #888; margin-bottom: 24px; }
+  .form-group { margin-bottom: 16px; }
+  .form-group label { display: block; font-size: 0.82rem; font-weight: 600; color: var(--brown-mid); margin-bottom: 6px; }
+  .form-group input, .form-group select {
+    width: 100%; padding: 11px 14px;
+    border: 2px solid #e8ddd5;
+    border-radius: 12px;
+    font-size: 0.95rem; font-family: 'DM Sans', sans-serif;
+    color: var(--brown);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .form-group input:focus, .form-group select:focus { border-color: var(--yolk); }
+  .btn-submit {
+    width: 100%;
+    background: var(--yolk); color: var(--brown);
+    border: none; border-radius: 30px;
+    padding: 12px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700; font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-top: 4px;
+  }
+  .btn-submit:hover { background: var(--yolk-dark); }
+  .login-error { color: var(--red); font-size: 0.83rem; margin-top: 10px; text-align: center; display: none; }
+
+  /* LOADING SPINNER */
+  .loading {
+    display: flex; align-items: center; justify-content: center;
+    padding: 40px; color: #bbb; gap: 10px; font-size: 0.9rem;
+  }
+  .spinner {
+    width: 22px; height: 22px;
+    border: 3px solid #e0d5cc;
+    border-top-color: var(--yolk);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* FOOTER */
+  footer {
+    text-align: center;
+    padding: 24px;
+    color: #bbb;
+    font-size: 0.82rem;
+    border-top: 1px solid #ece3d8;
+  }
+
+  @media (max-width: 600px) {
+    .hero h1 { font-size: 1.6rem; }
+    .hero-stat .val { font-size: 1.3rem; }
+    header { padding: 0 16px; }
+    .main { padding: 20px 12px; }
+    .modal { padding: 28px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">NdokkMu <span>Distributor Telur</span></div>
+  <div class="header-right">
+    <button class="btn-login" onclick="openLogin()">🔐 Login</button>
+  </div>
+</header>
+
+<div class="ticker" id="tickerBar">📅 Memuat informasi...</div>
+
+<div class="hero">
+  <h1>🥚 Harga Telur Hari Ini</h1>
+  <p>Informasi harga dan stok telur terkini langsung dari admin</p>
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <div class="val" id="heroHargaJual">—</div>
+      <div class="lbl">Harga Jual (Rp/kg)</div>
+    </div>
+    <div class="hero-stat">
+      <div class="val" id="heroStok">—</div>
+      <div class="lbl">Stok Tersedia (kg)</div>
+    </div>
+    <div class="hero-stat">
+      <div class="val" id="heroJumlahAgen">—</div>
+      <div class="lbl">Agen Aktif</div>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+
+  <div class="section-title">💰 Info Harga</div>
+  <div class="harga-grid">
+    <div class="harga-card">
+      <div class="lbl">Harga Jual Admin</div>
+      <div class="val" id="cardHargaJual">—</div>
+      <div class="sub">Per kilogram</div>
+    </div>
+    <div class="harga-card">
+      <div class="lbl">Stok Admin</div>
+      <div class="val" id="cardStok">— kg</div>
+      <div class="sub">Tersedia sekarang</div>
+    </div>
+    <div class="harga-card" style="border-left-color:#2ECC71">
+      <div class="lbl">Nilai Stok</div>
+      <div class="val" id="cardNilaiStok">—</div>
+      <div class="sub">Berdasarkan harga modal</div>
+    </div>
+  </div>
+
+  <div class="section-title">👥 Daftar Agen</div>
+  <div class="agent-grid" id="agentGrid">
+    <div class="loading"><div class="spinner"></div> Memuat data agen...</div>
+  </div>
+
+</div>
+
+<footer>
+  &copy; 2025 NdokkMu · Sistem Manajemen Distributor Telur
+</footer>
+
+<!-- LOGIN MODAL -->
+<div class="modal-overlay" id="loginModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeLogin()">✕</button>
+    <h2>🔐 Login</h2>
+    <p>Masukkan email dan password Anda</p>
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" id="loginEmail" placeholder="email@example.com" autocomplete="email">
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <button class="btn-submit" onclick="doLogin()">Masuk</button>
+    <div class="login-error" id="loginError">Email atau password salah</div>
+  </div>
+</div>
+
+<!-- FIREBASE -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, collection, getDocs, doc, getDoc, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAkn48CNd2-q5NDirJNIr4VOb3QHrssFRA",
+  authDomain: "ndokkmu-62880.firebaseapp.com",
+  projectId: "ndokkmu-62880",
+  storageBucket: "ndokkmu-62880.firebasestorage.app",
+  messagingSenderId: "456250896637",
+  appId: "1:456250896637:web:cf4b2adfdb2254b32d8e94"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// Expose globally
+window._auth = auth;
+window._db = db;
+window._signIn = signInWithEmailAndPassword;
+
+// TICKER - update date/time
+function updateTicker() {
+  const now = new Date();
+  const opts = { weekday:'long', year:'numeric', month:'long', day:'numeric' };
+  const tgl = now.toLocaleDateString('id-ID', opts);
+  const jam = now.toLocaleTimeString('id-ID');
+  document.getElementById('tickerBar').textContent = `📅 ${tgl}  |  ⏰ ${jam}`;
+}
+updateTicker();
+setInterval(updateTicker, 1000);
+
+// FORMAT CURRENCY
+function rupiah(n) {
+  if (!n && n !== 0) return '—';
+  return 'Rp ' + Number(n).toLocaleString('id-ID');
+}
+
+// LOAD ADMIN INFO (stok & harga jual)
+async function loadAdminInfo() {
+  try {
+    // Ambil harga jual terakhir dari transaksi jual
+    const jualQ = query(collection(db,'transaksi_jual'), orderBy('tanggal','desc'), limit(1));
+    const jualSnap = await getDocs(jualQ);
+    let hargaJual = null;
+    if (!jualSnap.empty) {
+      hargaJual = jualSnap.docs[0].data().harga_jual;
+    }
+
+    // Ambil stok dari doc settings/stok_admin
+    const settingsDoc = await getDoc(doc(db,'settings','admin'));
+    let stok = null, nilaiStok = null;
+    if (settingsDoc.exists()) {
+      const d = settingsDoc.data();
+      stok = d.stok_kg ?? null;
+      nilaiStok = d.nilai_stok ?? null;
+    }
+
+    document.getElementById('heroHargaJual').textContent = hargaJual ? rupiah(hargaJual) : '—';
+    document.getElementById('heroStok').textContent = stok !== null ? stok + ' kg' : '—';
+    document.getElementById('cardHargaJual').textContent = hargaJual ? rupiah(hargaJual) : '—';
+    document.getElementById('cardStok').textContent = stok !== null ? stok + ' kg' : '—';
+    document.getElementById('cardNilaiStok').textContent = nilaiStok ? rupiah(nilaiStok) : '—';
+  } catch(e) {
+    console.error(e);
+  }
+}
+
+// LOAD AGENTS
+async function loadAgents() {
+  const grid = document.getElementById('agentGrid');
+  try {
+    const snap = await getDocs(collection(db,'users'));
+    const agents = [];
+    snap.forEach(d => {
+      const u = d.data();
+      if (u.role === 'agen') agents.push({ id: d.id, ...u });
+    });
+
+    document.getElementById('heroJumlahAgen').textContent = agents.length;
+
+    if (agents.length === 0) {
+      grid.innerHTML = '<div style="color:#aaa;padding:24px">Belum ada data agen.</div>';
+      return;
+    }
+
+    // Untuk setiap agen, ambil harga terakhir dari transaksi transfer ke agen tsb
+    let html = '';
+    for (const ag of agents) {
+      const initial = ag.nama ? ag.nama.charAt(0).toUpperCase() : '?';
+      // Ambil harga transfer terakhir ke agen ini
+      let hargaAgen = null;
+      try {
+        const tQ = query(collection(db,'transaksi_transfer'), orderBy('tanggal','desc'), limit(100));
+        const tSnap = await getDocs(tQ);
+        tSnap.forEach(td => {
+          if (td.data().agen_id === ag.id && hargaAgen === null) {
+            hargaAgen = td.data().harga_jual;
+          }
+        });
+      } catch {}
+
+      const waHref = ag.whatsapp ? `https://wa.me/62${ag.whatsapp.replace(/^0/,'')}` : '#';
+      html += `
+        <div class="agent-card">
+          <div class="agent-header">
+            <div class="agent-avatar">${initial}</div>
+            <div>
+              <div class="agent-name">${ag.nama || '-'}</div>
+              <div class="agent-addr">📍 ${ag.alamat || '-'}</div>
+            </div>
+          </div>
+          <div class="agent-footer">
+            <div class="agent-harga">
+              ${hargaAgen ? rupiah(hargaAgen) : '<span style="color:#bbb">—</span>'}
+              <span>Harga agen terakhir/kg</span>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center">
+              ${ag.whatsapp ? `<a class="btn-wa" href="${waHref}" target="_blank">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.116.553 4.103 1.523 5.828L0 24l6.321-1.499C8.024 23.437 9.965 24 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.888 0-3.663-.511-5.188-1.402l-.37-.22-3.752.89.895-3.681-.242-.381C2.508 15.596 2 13.854 2 12 2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+                WhatsApp
+              </a>` : ''}
+            </div>
+          </div>
+        </div>`;
+    }
+    grid.innerHTML = html;
+  } catch(e) {
+    grid.innerHTML = '<div style="color:#e74c3c;padding:24px">Gagal memuat data agen.</div>';
+    console.error(e);
+  }
+}
+
+loadAdminInfo();
+loadAgents();
+
+// LOGIN
+window.openLogin = function() {
+  document.getElementById('loginModal').classList.add('active');
+  document.getElementById('loginEmail').focus();
+}
+window.closeLogin = function() {
+  document.getElementById('loginModal').classList.remove('active');
+}
+window.doLogin = async function() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass = document.getElementById('loginPassword').value;
+  const errEl = document.getElementById('loginError');
+  errEl.style.display = 'none';
+  if (!email || !pass) { errEl.textContent = 'Email dan password wajib diisi'; errEl.style.display = 'block'; return; }
+  try {
+    const cred = await window._signIn(window._auth, email, pass);
+    const uid = cred.user.uid;
+    // Cek role user
+    const uDoc = await getDoc(doc(db,'users',uid));
+    if (uDoc.exists()) {
+      const role = uDoc.data().role;
+      if (role === 'admin' || role === 'superuser') {
+        window.location.href = 'admin.html';
+      } else if (role === 'agen') {
+        window.location.href = 'agen.html';
+      } else {
+        errEl.textContent = 'Role tidak dikenali.'; errEl.style.display = 'block';
+      }
+    } else {
+      errEl.textContent = 'Data user tidak ditemukan.'; errEl.style.display = 'block';
+    }
+  } catch(e) {
+    errEl.textContent = 'Email atau password salah.'; errEl.style.display = 'block';
+  }
+}
+
+// Close modal on overlay click
+document.getElementById('loginModal').addEventListener('click', function(e) {
+  if (e.target === this) closeLogin();
+});
+
+// Enter key on login
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && document.getElementById('loginModal').classList.contains('active')) doLogin();
+});
+</script>
+</body>
+</html>
