@@ -837,20 +837,19 @@ window.simpanJual=async function(){
   }catch(e){showToast('Error: '+e.message,'error')}
 }
 window.simpanTransfer=async function(){
-  const agenId = document.getElementById('agen').value; // pastikan ini = doc.id firestore
+ const agenId = document.getElementById('transferAgen').value;
   const tgl=document.getElementById('transferTgl').value;
   const qty=parseFloat(document.getElementById('transferQty').value);
   const harga=parseFloat(document.getElementById('transferHarga').value);
   const note=document.getElementById('transferNote').value.trim();
   if(!agenId||!tgl||!qty||!harga){showToast('Semua field wajib diisi','error');return}
   const ag=_users.find(u=>u.id===agenId);
-  try{
-   await addDoc(collection(db,'transaksi_transfer'),{
-  agen_id: selectedAgenId,
-  agen_nama: selectedAgenNama,
+  await addDoc(collection(db,'transaksi_transfer'),{
+  agen_id: agenId,
+  agen_nama: ag?.nama || '',
   qty: qty,
   harga_transfer: harga,
-  tanggal: tgl,
+  tanggal: tgl || new Date().toISOString().slice(0,10),
   created: serverTimestamp()
 });
     // Also record as sell for admin FIFO
