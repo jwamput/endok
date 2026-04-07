@@ -441,8 +441,8 @@ function setDefaultDates(){
   document.getElementById('noteJualTgl').textContent=t;
   if(_transfers.length>0){
     const last=_transfers[_transfers.length-1];
-    document.getElementById('noteJualHtr').textContent=rp(last.harga_jual);
-    document.getElementById('retHarga').value=last.harga_jual||'';
+    document.getElementById('noteJualHtr').textContent=rp(last.harga_transfer);
+document.getElementById('retHarga').value=last.harga_transfer||'';
     document.getElementById('retNote').value=`Retur ke Admin`;
   }
   if(_juals.length>0){
@@ -451,15 +451,15 @@ function setDefaultDates(){
 }
 
 function computeFIFO(){
-  _batches=_transfers.map(t=>({
-    tgl:isoDate(t.tanggal),
-    masuk:Number(t.qty)||0,
-    harga:Number(t.harga_jual)||0,
-    terjual:0,
-    sisa:Number(t.qty)||0,
-    profit:0,
-    id:t.id
-  }));
+ _batches=_transfers.map(t=>({
+  tgl:isoDate(t.tanggal),
+  masuk:Number(t.qty)||0,
+  harga:Number(t.harga_transfer)||0,
+  terjual:0,
+  sisa:Number(t.qty)||0,
+  profit:0,
+  id:t.id
+}));
 
   window._fifoDetail=[];
   const sells=[..._juals].sort((a,b)=>isoDate(a.tanggal).localeCompare(isoDate(b.tanggal)));
@@ -509,7 +509,7 @@ function buildDashboard(){
   for(const d of days7){
     const masuk=_transfers.filter(x=>isoDate(x.tanggal)===d).reduce((s,x)=>s+Number(x.qty),0);
     const keluar=_juals.filter(x=>isoDate(x.tanggal)===d).reduce((s,x)=>s+Number(x.qty),0);
-    const htr=_transfers.filter(x=>isoDate(x.tanggal)===d).map(x=>rp(x.harga_jual)).join(', ')||'—';
+    const htr=_transfers.filter(x=>isoDate(x.tanggal)===d).map(x=>rp(x.harga_transfer)).join(', ')||'—';
     const hjual=_juals.filter(x=>isoDate(x.tanggal)===d).map(x=>rp(x.harga_jual)).join(', ')||'—';
     const profit=(window._fifoDetail||[]).filter(x=>x.tgl_jual===d).reduce((s,x)=>s+x.profit,0);
     html+=`<tr><td>${d}</td><td>${fmt(masuk)}</td><td>${htr}</td><td>${fmt(keluar)}</td><td>${hjual}</td><td>—</td><td style="font-weight:600">${rp(profit)}</td></tr>`;
@@ -567,7 +567,7 @@ window.filterData=function(type,range,btn){
 
 function renderTransferTable(data){
   const tq=data.reduce((s,t)=>s+Number(t.qty),0);
-  const tm=data.reduce((s,t)=>s+Number(t.qty)*Number(t.harga_jual),0);
+  const tm=data.reduce((s,t)=>s+Number(t.qty)*Number(t.harga_transfer),0);
   document.getElementById('trSumQty').textContent=fmt(tq);
   document.getElementById('trSumModal').textContent=rp(tm);
   let html='';
@@ -641,7 +641,10 @@ window.exportExcel=function(type){
 let _chartH=null,_chartM=null;
 function buildGrafik(){
   const allDates=[...new Set([..._transfers.map(x=>isoDate(x.tanggal)),..._juals.map(x=>isoDate(x.tanggal))].sort())];
-  const hTr=allDates.map(d=>{const t=_transfers.filter(x=>isoDate(x.tanggal)===d);return t.length>0?t[t.length-1].harga_jual:null});
+  const hTr=allDates.map(d=>{
+  const t=_transfers.filter(x=>isoDate(x.tanggal)===d);
+  return t.length>0?t[t.length-1].harga_transfer:null
+});
   const hJual=allDates.map(d=>{const j=_juals.filter(x=>isoDate(x.tanggal)===d);return j.length>0?j[j.length-1].harga_jual:null});
   if(_chartH)_chartH.destroy();
   _chartH=new Chart(document.getElementById('chartHarga').getContext('2d'),{
@@ -652,7 +655,7 @@ function buildGrafik(){
     ]},
     options:{responsive:true,plugins:{legend:{position:'top'}},scales:{y:{ticks:{callback:v=>'Rp '+v.toLocaleString('id-ID')}}}}
   });
-  const maByDate=allDates.map(d=>{const k=_transfers.filter(x=>isoDate(x.tanggal)<=d);const sq=k.reduce((s,x)=>s+Number(x.qty),0);const sv=k.reduce((s,x)=>s+Number(x.qty)*Number(x.harga_jual),0);return sq>0?sv/sq:null});
+  const maByDate=allDates.map(d=>{const k=_transfers.filter(x=>isoDate(x.tanggal)<=d);const sq=k.reduce((s,x)=>s+Number(x.qty),0);const sv=k.reduce((s,x)=>s+Number(x.qty)*Number(x.harga_transfer),0);return sq>0?sv/sq:null});
   const margins=allDates.map(d=>{
     const t=_transfers.filter(x=>isoDate(x.tanggal)===d);
     const j=_juals.filter(x=>isoDate(x.tanggal)===d);
