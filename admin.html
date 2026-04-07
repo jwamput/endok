@@ -151,11 +151,11 @@ tbody td{padding:10px 14px;color:var(--brown)}
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-logo">🥚 NdokkMu <span>Panel Admin</span></div>
   <nav class="sidebar-nav">
-    <div class="nav-item active" onclick="switchTab('dashboard',event)"><span class="icon">📊</span> Dashboard</div>
-    <div class="nav-item" onclick="switchTab('akun',event)"><span class="icon">👥</span> Akun</div>
-    <div class="nav-item" onclick="switchTab('transaksi',event)"><span class="icon">💳</span> Transaksi</div>
-    <div class="nav-item" onclick="switchTab('data',event)"><span class="icon">📋</span> Data</div>
-    <div class="nav-item" onclick="switchTab('grafik',event)"><span class="icon">📈</span> Grafik</div>
+    <div class="nav-item active" onclick="switchTab('dashboard')"><span class="icon">📊</span> Dashboard</div>
+    <div class="nav-item" onclick="switchTab('akun')"><span class="icon">👥</span> Akun</div>
+    <div class="nav-item" onclick="switchTab('transaksi')"><span class="icon">💳</span> Transaksi</div>
+    <div class="nav-item" onclick="switchTab('data')"><span class="icon">📋</span> Data</div>
+    <div class="nav-item" onclick="switchTab('grafik')"><span class="icon">📈</span> Grafik</div>
   </nav>
   <div class="sidebar-footer">
     <button class="btn-logout" onclick="doLogout()">🚪 Logout</button>
@@ -469,7 +469,10 @@ tbody td{padding:10px 14px;color:var(--brown)}
 
 <script type="module">
 
-
+function doLogout(){
+  signOut(auth);
+}
+window.doLogout = doLogout;
   
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
