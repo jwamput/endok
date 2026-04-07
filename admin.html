@@ -837,7 +837,7 @@ window.simpanJual=async function(){
   }catch(e){showToast('Error: '+e.message,'error')}
 }
 window.simpanTransfer=async function(){
-  const agenId=document.getElementById('transferAgen').value;
+  const agenId = document.getElementById('agen').value; // pastikan ini = doc.id firestore
   const tgl=document.getElementById('transferTgl').value;
   const qty=parseFloat(document.getElementById('transferQty').value);
   const harga=parseFloat(document.getElementById('transferHarga').value);
