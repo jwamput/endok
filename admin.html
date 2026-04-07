@@ -1094,21 +1094,6 @@ window.switchTab = function(tabName, e){
 };
 
 
-window.switchTab = function(tabName, e){
-  document.querySelectorAll('.nav-item').forEach(el=>{
-    el.classList.remove('active');
-  });
-
-  if(e) e.currentTarget.classList.add('active');
-
-  document.querySelectorAll('.tab-panel').forEach(el=>{
-    el.classList.remove('active');
-  });
-
-  const target = document.getElementById('tab-' + tabName);
-  if(target) target.classList.add('active');
-};
-
   
 </script>
 </body>  
