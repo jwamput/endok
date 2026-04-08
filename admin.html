@@ -387,25 +387,11 @@ tbody td{padding:10px 14px;color:var(--ink2);font-size:.84rem}
   </div>
 </nav>
 
-<aside class="sidebar" id="sidebar">
-  <div class="sidebar-logo">🥚 NdokkMu <span>Panel Admin</span></div>
-  <nav class="sidebar-nav">
-    <div class="nav-item active" onclick="switchTab('dashboard')"><span class="icon">📊</span> Dashboard</div>
-    <div class="nav-item" onclick="switchTab('akun')"><span class="icon">👥</span> Akun</div>
-    <div class="nav-item" onclick="switchTab('transaksi')"><span class="icon">💳</span> Transaksi</div>
-    <div class="nav-item" onclick="switchTab('data')"><span class="icon">📋</span> Data</div>
-    <div class="nav-item" onclick="switchTab('grafik')"><span class="icon">📈</span> Grafik</div>
-  </nav>
-  <div class="sidebar-footer">
-    <button class="btn-logout" onclick="doLogout()">🚪 Logout</button>
-  </div>
-</aside>
+
 
 <div class="main-wrap">
   <div class="topbar">
     <div style="display:flex;align-items:center;gap:15px">
-      <i class="fas fa-bars" onclick="toggleSidebar()" style="font-size:20px;color:var(--ink);cursor:pointer"></i>
-      
       <div style="width:34px;height:34px;background:linear-gradient(135deg,var(--or),var(--or-d));border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 4px 10px var(--or-glow)">
         <i class="fas fa-user-shield" style="font-size:16px"></i>
       </div>
@@ -420,7 +406,6 @@ tbody td{padding:10px 14px;color:var(--ink2);font-size:.84rem}
   </div>
 
   <div class="content">
-
     <!-- ===== DASHBOARD ===== -->
     <div class="tab-panel active" id="tab-dashboard">
       <div class="grid-4">
