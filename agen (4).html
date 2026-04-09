@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NdokkMu — Panel Agen</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --ink:#111318;--ink2:#2D3142;--ink3:#6B7280;--ink4:#C4C9D4;
+  --bg:#F4F6FA;--bg2:#ECEEF5;--bg3:#E0E3EF;
+  --surface:#FFFFFF;
+  --border:#DDE1EF;
+  --or:#FF6B2C;--or-s:#FFF1EB;--or-d:#D94E12;--or-glow:rgba(255,107,44,0.25);
+  --gr:#00B87A;--gr-s:#E6FBF4;--gr-d:#007A52;
+  --re:#EF4444;--re-s:#FEF2F2;--re-d:#B91C1C;
+  --bl:#3B6FFF;--bl-s:#EEF3FF;--bl-d:#1E3A8A;
+  --am:#F59E0B;--am-s:#FFFBEB;--am-d:#92400E;
+  --sh:0 1px 3px rgba(17,19,24,0.06),0 4px 16px rgba(17,19,24,0.06);
+  --sh2:0 8px 32px rgba(17,19,24,0.12);
+  --r:14px;--rf:999px;--nav-h:68px;
+}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--ink);font-size:15px;min-height:100vh;padding-bottom:calc(var(--nav-h) + 12px)}
+::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--bg3);border-radius:99px}
+.hdr{background:rgba(255,255,255,0.85);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:300;gap:12px}
+.hdr-logo{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.hdr-icon{width:38px;height:38px;background:linear-gradient(135deg,var(--or) 0%,var(--or-d) 100%);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;box-shadow:0 4px 12px var(--or-glow)}
+.hdr-title{font-size:16px;font-weight:900;color:var(--ink);letter-spacing:-0.5px;line-height:1.1}
+.hdr-sub{font-size:9px;color:var(--ink3);font-weight:600;letter-spacing:0.5px;text-transform:uppercase;margin-top:1px}
+.hdr-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.hdr-user{font-size:12px;font-weight:700;color:var(--ink2);background:var(--bg2);padding:6px 12px;border-radius:var(--rf);display:flex;align-items:center;gap:6px;border:1px solid var(--border)}
+.hdr-user-dot{width:7px;height:7px;background:var(--gr);border-radius:50%;display:inline-block;flex-shrink:0}
+.hdr-logout{background:transparent;border:1px solid var(--border);color:var(--ink3);padding:7px 12px;border-radius:10px;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.2s;font-family:'Plus Jakarta Sans',sans-serif}
+.hdr-logout:hover{background:var(--re-s);color:var(--re);border-color:var(--re)}
+.nav{position:fixed;bottom:0;left:0;right:0;background:rgba(255,255,255,0.95);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid var(--border);display:flex;z-index:300;height:var(--nav-h);padding-bottom:env(safe-area-inset-bottom,4px)}
+.nb{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 4px 6px;border:none;background:transparent;color:var(--ink3);font-size:9px;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;gap:5px;transition:color 0.2s;letter-spacing:0.4px;text-transform:uppercase;position:relative}
+.ni{width:28px;height:28px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;transition:all 0.2s}
+.nb.on{color:var(--or)}
+.nb.on .ni{background:var(--or-s);transform:scale(1.1);box-shadow:0 2px 8px var(--or-glow)}
+.nb::after{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:0;height:2px;background:var(--or);border-radius:0 0 4px 4px;transition:width 0.2s}
+.nb.on::after{width:28px}
+.nb-logout{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 4px 6px;border:none;background:transparent;color:var(--re);font-size:9px;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;gap:5px;transition:all 0.2s;letter-spacing:0.4px;text-transform:uppercase;border-left:1px solid var(--border)}
+.nb-logout:hover{background:var(--re-s)}
+.nb-logout .ni{width:28px;height:28px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.wrap{max-width:960px;margin:0 auto;padding:20px 16px 24px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}
+.tab-panel{display:none}
+.tab-panel.active{display:block;animation:fi .22s ease}
+@keyframes fi{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.card{background:var(--surface);border-radius:var(--r);padding:20px;box-shadow:var(--sh);border:1px solid var(--border)}
+.kpi-card{padding:18px 16px;position:relative;overflow:hidden}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.kpi-card.c-yolk::before{background:linear-gradient(90deg,var(--or),#FF9A5C)}
+.kpi-card.c-green::before{background:linear-gradient(90deg,var(--gr),#00d68f)}
+.kpi-card.c-blue::before{background:linear-gradient(90deg,var(--bl),#6B9FFF)}
+.kpi-card.c-red::before{background:linear-gradient(90deg,var(--re),#f87171)}
+.kpi-label{font-size:.68rem;color:var(--ink3);text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:8px}
+.kpi-val{font-size:1.45rem;font-weight:800;color:var(--ink);margin:4px 0;letter-spacing:-0.5px}
+.kpi-sub{font-size:.72rem;color:var(--ink4);font-weight:500}
+.section-hd{font-weight:800;font-size:.95rem;color:var(--ink);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.section-hd::after{content:'';flex:1;height:2px;background:linear-gradient(to right,var(--or-glow),transparent);border-radius:2px}
+.tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:var(--r);border:1px solid var(--border);box-shadow:var(--sh);background:var(--surface)}
+.tbl-wrap table{min-width:500px;width:100%;border-collapse:collapse}
+table{width:100%;border-collapse:collapse;background:var(--surface);font-size:.84rem}
+thead{background:var(--bg)}
+thead th{color:var(--ink3);font-weight:700;padding:11px 14px;text-align:left;white-space:nowrap;font-size:.72rem;text-transform:uppercase;letter-spacing:0.8px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--bg);z-index:1}
+tbody tr{border-bottom:1px solid var(--bg2);transition:background .15s}
+tbody tr:hover{background:var(--bg)}
+tbody tr:last-child td{border-bottom:none}
+tbody td{padding:12px 14px;color:var(--ink2);font-size:.84rem;white-space:nowrap;vertical-align:middle;border-bottom:1px solid var(--bg2)}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:var(--rf);font-size:.7rem;font-weight:700}
+.badge-green{background:var(--gr-s);color:#007A52}
+.badge-red{background:var(--re-s);color:#B91C1C}
+.badge-yellow{background:var(--am-s);color:#92400E}
+.btn-icon{background:none;border:none;cursor:pointer;padding:5px 7px;border-radius:8px;font-size:.95rem;transition:background .15s}
+.btn-icon:hover{background:var(--bg2)}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-group{margin-bottom:0}
+.form-group label{display:block;font-size:.75rem;font-weight:700;color:var(--ink2);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.6px}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:11px 13px;border:1.5px solid var(--border);border-radius:10px;font-size:.9rem;font-family:'Plus Jakarta Sans',sans-serif;color:var(--ink);background:var(--bg);outline:none;transition:border-color .2s,box-shadow .2s}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--or);box-shadow:0 0 0 3px var(--or-s);background:var(--surface)}
+.form-group.full{grid-column:1/-1}
+.form-note{background:var(--am-s);border-left:3px solid var(--am);border-radius:10px;padding:10px 14px;font-size:.8rem;color:#78350F;margin-bottom:14px;font-weight:500}
+.btn-primary{background:linear-gradient(135deg,var(--or) 0%,var(--or-d) 100%);color:#fff;border:none;border-radius:var(--rf);padding:11px 26px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:.88rem;cursor:pointer;transition:all .2s;box-shadow:0 4px 14px var(--or-glow)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 20px var(--or-glow)}
+.btn-secondary{background:var(--bg2);color:var(--ink2);border:1px solid var(--border);border-radius:var(--rf);padding:11px 26px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:.88rem;cursor:pointer;transition:background .2s}
+.btn-secondary:hover{background:var(--bg3)}
+.btn-green{background:linear-gradient(135deg,var(--gr) 0%,#007A52 100%);color:#fff;border:none;border-radius:var(--rf);padding:9px 20px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:.82rem;cursor:pointer;transition:all .15s;box-shadow:0 3px 10px rgba(0,184,122,0.25)}
+.btn-green:hover{transform:translateY(-1px)}
+.btn-red{background:linear-gradient(135deg,var(--re) 0%,var(--re-d) 100%);color:#fff;border:none;border-radius:var(--rf);padding:9px 20px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:.82rem;cursor:pointer;transition:all .15s}
+.filter-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
+.filter-btn{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--rf);padding:6px 16px;font-size:.78rem;font-weight:700;cursor:pointer;transition:all .15s;color:var(--ink3);font-family:'Plus Jakarta Sans',sans-serif}
+.filter-btn.active{background:var(--or);color:#fff;border-color:var(--or);box-shadow:0 2px 8px var(--or-glow)}
+.filter-btn:hover:not(.active){border-color:var(--or);color:var(--or)}
+.filter-dates{display:flex;gap:8px;align-items:center;font-size:.8rem;font-weight:600;color:var(--ink3)}
+.filter-dates input{border:1.5px solid var(--border);border-radius:9px;padding:6px 10px;font-size:.79rem;outline:none;background:var(--surface);transition:border-color .2s}
+.filter-dates input:focus{border-color:var(--or)}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(17,19,24,0.6);backdrop-filter:blur(6px);z-index:300;align-items:center;justify-content:center;padding:16px}
+.modal-overlay.active{display:flex}
+.modal{background:var(--surface);border-radius:20px;padding:28px 26px;width:100%;max-width:440px;box-shadow:var(--sh2);position:relative;animation:popIn .2s ease;border:1px solid var(--border);max-height:90vh;overflow-y:auto}
+@keyframes popIn{from{transform:scale(.94);opacity:0}to{transform:scale(1);opacity:1}}
+.modal-close{position:absolute;top:14px;right:16px;background:var(--bg2);border:none;width:30px;height:30px;border-radius:50%;font-size:1rem;color:var(--ink3);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.modal-close:hover{background:var(--re-s);color:var(--re)}
+.modal h3{font-weight:800;font-size:1.05rem;color:var(--ink);margin-bottom:18px;letter-spacing:-0.3px}
+.toast{position:fixed;bottom:calc(var(--nav-h) + 12px);right:24px;background:var(--ink);color:#fff;padding:12px 20px;border-radius:12px;font-size:.85rem;font-weight:600;z-index:999;display:none;box-shadow:var(--sh2)}
+.toast.show{display:block;animation:slideUp .25s ease}
+@keyframes slideUp{from{transform:translateY(16px);opacity:0}to{transform:translateY(0);opacity:1}}
+.toast.success{border-left:4px solid var(--gr)}
+.toast.error{border-left:4px solid var(--re)}
+.chart-wrap{background:var(--surface);border-radius:var(--r);padding:20px;box-shadow:var(--sh);border:1px solid var(--border);margin-bottom:20px}
+.chart-wrap canvas{max-height:300px}
+.spinner{width:20px;height:20px;border:2.5px solid var(--bg3);border-top-color:var(--or);border-radius:50%;animation:spin .7s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-row{text-align:center;padding:24px;color:var(--ink4);font-size:.85rem}
+@media(min-width:640px){.grid-4{grid-template-columns:repeat(4,1fr)}.grid-3{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:860px){.wrap{padding:16px 14px 24px}}
+@media(max-width:640px){.grid-4{grid-template-columns:1fr 1fr}.grid-3{grid-template-columns:1fr 1fr}.form-grid{grid-template-columns:1fr}.chart-wrap canvas{max-height:220px}.filter-bar{gap:6px}.filter-btn{padding:5px 10px;font-size:.74rem}}
+@media(max-width:480px){.grid-4{grid-template-columns:1fr 1fr}.grid-3{grid-template-columns:1fr}.kpi-val{font-size:1.15rem}.kpi-label{font-size:.66rem}.filter-dates{flex-wrap:wrap;gap:4px}.filter-dates input{font-size:.74rem;padding:4px 8px}.modal{padding:22px 16px}}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <div class="hdr-logo">
+    <div class="hdr-icon">🥚</div>
+    <div>
+      <div class="hdr-title">NdokkMu</div>
+      <div class="hdr-sub">Panel Agen</div>
+    </div>
+  </div>
+  <div class="hdr-right">
+    <div class="hdr-user"><span class="hdr-user-dot"></span><span id="agenNameTop">Agen</span></div>
+    <button class="hdr-logout" onclick="doLogout()">Logout</button>
+  </div>
+</header>
+
+<nav class="nav">
+  <button class="nb on" id="nb-dashboard" onclick="switchTab('dashboard')">
+    <div class="ni">📊</div>Dashboard
+  </button>
+  <button class="nb" id="nb-transaksi" onclick="switchTab('transaksi')">
+    <div class="ni">💳</div>Transaksi
+  </button>
+  <button class="nb" id="nb-data" onclick="switchTab('data')">
+    <div class="ni">📋</div>Data
+  </button>
+  <button class="nb" id="nb-grafik" onclick="switchTab('grafik')">
+    <div class="ni">📈</div>Grafik
+  </button>
+  <button class="nb" id="nb-akun" onclick="switchTab('akun')">
+    <div class="ni">👤</div>Akun
+  </button>
+  <button class="nb-logout" onclick="doLogout()">
+    <div class="ni">🚪</div>Keluar
+  </button>
+</nav>
+
+<div class="wrap">
+
+  <!-- ===== DASHBOARD ===== -->
+  <div class="tab-panel active" id="tab-dashboard">
+    <div class="grid-4">
+      <div class="card kpi-card c-yolk">
+        <div class="kpi-label">Stok Agen</div>
+        <div class="kpi-val" id="d-stok">—</div>
+        <div class="kpi-sub">Kilogram dari admin</div>
+      </div>
+      <div class="card kpi-card c-green">
+        <div class="kpi-label">Nilai Stok</div>
+        <div class="kpi-val" id="d-nilai">—</div>
+        <div class="kpi-sub">Berdasarkan harga transfer</div>
+      </div>
+      <div class="card kpi-card c-blue">
+        <div class="kpi-label">Moving Average</div>
+        <div class="kpi-val" id="d-ma">—</div>
+        <div class="kpi-sub">Rata-rata harga transfer</div>
+      </div>
+      <div class="card kpi-card c-red">
+        <div class="kpi-label">Harga Jual Terakhir</div>
+        <div class="kpi-val" id="d-hjual">—</div>
+        <div class="kpi-sub">Per kilogram</div>
+      </div>
+    </div>
+    <div class="grid-3">
+      <div class="card kpi-card c-yolk">
+        <div class="kpi-label">Total Modal</div>
+        <div class="kpi-val" id="d-modal">—</div>
+        <div class="kpi-sub">Akumulasi harga transfer</div>
+      </div>
+      <div class="card kpi-card c-green">
+        <div class="kpi-label">Total Omzet</div>
+        <div class="kpi-val" id="d-omzet">—</div>
+        <div class="kpi-sub">Akumulasi penjualan</div>
+      </div>
+      <div class="card kpi-card c-blue">
+        <div class="kpi-label">Total Profit</div>
+        <div class="kpi-val" id="d-profit">—</div>
+        <div class="kpi-sub">Omzet - Modal</div>
+      </div>
+    </div>
+
+    <div class="section-hd">📅 Resume 7 Transaksi Terakhir</div>
+    <div class="card" style="margin-bottom:24px">
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Tanggal</th><th>Masuk (kg)</th><th>Harga Transfer</th><th>Jual (kg)</th><th>Harga Jual</th><th>Stok Akhir</th><th>Profit</th></tr></thead>
+          <tbody id="resumeBody"><tr><td colspan="7" class="loading-row"><span class="spinner"></span></td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== TRANSAKSI ===== -->
+  <div class="tab-panel" id="tab-transaksi">
+    <div class="filter-bar" style="margin-bottom:20px">
+      <button class="filter-btn active" onclick="switchSubTab('jual',this)">🛒 Input Jual</button>
+      <button class="filter-btn" onclick="switchSubTab('return',this)">↩️ Return ke Admin</button>
+    </div>
+
+    <!-- Jual -->
+    <div id="sub-jual">
+      <div class="form-note">💡 Jual terakhir: <b id="noteJualTgl">—</b> | Harga jual terakhir: <b id="noteJualHjual">—</b> | Harga transfer terakhir: <b id="noteJualHtr">—</b> | Stok: <b id="noteJualStok">—</b> kg</div>
+      <div class="card">
+        <div class="form-grid">
+          <div class="form-group"><label>Tanggal</label><input type="date" id="jualTgl"></div>
+          <div class="form-group"><label>Qty (kg)</label><input type="number" id="jualQty" min="0" placeholder="0"></div>
+          <div class="form-group"><label>Harga Jual (Rp/kg)</label><input type="number" id="jualHarga" min="0" placeholder="0"></div>
+          <div class="form-group"><label>Catatan (opsional)</label><input type="text" id="jualNote" placeholder="Opsional"></div>
+        </div>
+        <button class="btn-primary" style="margin-top:14px" onclick="simpanJual()">💾 Simpan</button>
+      </div>
+    </div>
+
+    <!-- Return -->
+    <div id="sub-return" style="display:none">
+      <div class="form-note">💡 Retur mengurangi stok agen dan mengembalikan ke admin. Harga FIFO otomatis terisi. Stok: <b id="noteRetStok">—</b> kg</div>
+      <div class="card">
+        <div class="form-grid">
+          <div class="form-group"><label>Tanggal</label><input type="date" id="retTgl"></div>
+          <div class="form-group"><label>Qty (kg)</label><input type="number" id="retQty" min="0" placeholder="0"></div>
+          <div class="form-group"><label>Harga FIFO (Rp/kg)</label><input type="number" id="retHarga" min="0" placeholder="0" readonly style="background:var(--bg2)"></div>
+          <div class="form-group"><label>Catatan</label><input type="text" id="retNote" placeholder="Otomatis terisi" readonly style="background:var(--bg2)"></div>
+        </div>
+        <button class="btn-primary" style="margin-top:14px" onclick="simpanReturn()">💾 Simpan Return</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== DATA ===== -->
+  <div class="tab-panel" id="tab-data">
+    <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap">
+      <button class="filter-btn active" onclick="switchDataTab('dtransfer',this)">🚚 Data Transfer</button>
+      <button class="filter-btn" onclick="switchDataTab('djual',this)">🛒 Data Jual</button>
+    </div>
+
+    <!-- Data Transfer -->
+    <div id="sub-dtransfer">
+      <div class="filter-bar">
+        <button class="filter-btn active" onclick="filterData('transfer','semua',this)">Semua</button>
+        <button class="filter-btn" onclick="filterData('transfer','7',this)">7 Hari</button>
+        <button class="filter-btn" onclick="filterData('transfer','30',this)">30 Hari</button>
+        <div class="filter-dates">
+          <input type="date" id="trDateFrom"> s/d <input type="date" id="trDateTo">
+          <button class="filter-btn" onclick="filterData('transfer','custom',this)">Cari</button>
+        </div>
+        <button class="btn-green" onclick="exportExcel('transfer')">⬇ Export Excel</button>
+      </div>
+      <div class="card" style="margin-bottom:8px;padding:12px 16px;background:#fff8e1">
+        <span style="font-size:.85rem">Total Transfer: <b id="trSumQty">—</b> kg | Total Modal: <b id="trSumModal">—</b></span>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Tanggal</th><th>Qty (kg)</th><th>Harga Transfer</th><th>Subtotal</th><th>Catatan</th></tr></thead>
+          <tbody id="transferBody"><tr><td colspan="5" class="loading-row"><span class="spinner"></span></td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Data Jual -->
+    <div id="sub-djual" style="display:none">
+      <div class="filter-bar">
+        <button class="filter-btn active" onclick="filterData('jual','semua',this)">Semua</button>
+        <button class="filter-btn" onclick="filterData('jual','7',this)">7 Hari</button>
+        <button class="filter-btn" onclick="filterData('jual','30',this)">30 Hari</button>
+        <div class="filter-dates">
+          <input type="date" id="jualDateFrom"> s/d <input type="date" id="jualDateTo">
+          <button class="filter-btn" onclick="filterData('jual','custom',this)">Cari</button>
+        </div>
+        <button class="btn-green" onclick="exportExcel('jual')">⬇ Export Excel</button>
+      </div>
+      <div class="card" style="margin-bottom:8px;padding:12px 16px;background:#e8faf0">
+        <span style="font-size:.85rem">Total Jual: <b id="jualSumQty">—</b> kg | Omzet: <b id="jualSumOmzet">—</b></span>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Tanggal</th><th>Qty (kg)</th><th>Harga Jual</th><th>Subtotal</th><th>Catatan</th><th>Aksi</th></tr></thead>
+          <tbody id="jualBody"><tr><td colspan="6" class="loading-row"><span class="spinner"></span></td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== GRAFIK ===== -->
+  <div class="tab-panel" id="tab-grafik">
+    <div class="filter-bar" style="margin-bottom:20px">
+      <button class="filter-btn active" onclick="setGrafikFilter('semua',this)">Semua</button>
+      <button class="filter-btn" onclick="setGrafikFilter('7',this)">7 Hari</button>
+      <button class="filter-btn" onclick="setGrafikFilter('30',this)">30 Hari</button>
+      <div class="filter-dates">
+        <input type="date" id="grafikDateFrom"> s/d <input type="date" id="grafikDateTo">
+        <button class="filter-btn" onclick="setGrafikFilter('custom',this)">Cari</button>
+      </div>
+    </div>
+    <div class="chart-wrap">
+      <div class="section-hd">📈 Grafik Harga (Transfer vs Jual)</div>
+      <canvas id="chartHarga"></canvas>
+    </div>
+    <div class="chart-wrap">
+      <div class="section-hd">📉 Grafik Margin & Moving Average</div>
+      <canvas id="chartMargin"></canvas>
+    </div>
+
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <div class="section-hd" style="margin-bottom:0">📋 Tabel Stok & Penjualan Harian</div>
+      <button class="btn-green" onclick="exportHarian()">⬇ Export Excel</button>
+    </div>
+    <div class="tbl-wrap" style="margin-bottom:24px">
+      <table>
+        <thead><tr><th>Tgl</th><th>Masuk (kg)</th><th>Harga Transfer</th><th>Keluar (kg)</th><th>Jual</th><th>Stok Akhir</th><th>Average</th><th>Margin/kg</th><th>Total Profit</th></tr></thead>
+        <tbody id="tblHarian"><tr><td colspan="9" class="loading-row"><span class="spinner"></span></td></tr></tbody>
+      </table>
+    </div>
+
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <div class="section-hd" style="margin-bottom:0">📦 Tabel Master Batch FIFO</div>
+      <button class="btn-green" onclick="exportBatch()">⬇ Export Excel</button>
+    </div>
+    <div class="tbl-wrap" style="margin-bottom:24px">
+      <table>
+        <thead><tr><th>Tgl Batch</th><th>Masuk (kg)</th><th>Harga Transfer</th><th>Terjual</th><th>Sisa (kg)</th><th>Total Profit</th><th>Status</th></tr></thead>
+        <tbody id="tblBatch"><tr><td colspan="7" class="loading-row"><span class="spinner"></span></td></tr></tbody>
+      </table>
+    </div>
+
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <div class="section-hd" style="margin-bottom:0">📝 Tabel Transaksi Penjualan FIFO</div>
+      <button class="btn-green" onclick="exportFifo()">⬇ Export Excel</button>
+    </div>
+    <div class="tbl-wrap" style="margin-bottom:8px">
+      <table>
+        <thead><tr><th>Tgl Jual</th><th>Tgl Batch</th><th>Qty (kg)</th><th>Harga Jual</th><th>Harga Transfer</th><th>Margin/kg</th><th>Profit</th></tr></thead>
+        <tbody id="tblFifo"><tr><td colspan="7" class="loading-row"><span class="spinner"></span></td></tr></tbody>
+      </table>
+    </div>
+    <div class="card" style="background:#e8faf0;padding:12px 16px;font-size:.83rem">
+      ✅ Validasi FIFO: <b id="fifoValidasi">Memuat...</b>
+    </div>
+  </div>
+
+  <!-- ===== AKUN ===== -->
+  <div class="tab-panel" id="tab-akun">
+    <div class="section-hd">👤 Profil Akun</div>
+    <div class="card">
+      <div class="form-grid">
+        <div class="form-group full">
+          <label>Nama Agen</label>
+          <input type="text" id="profNama" placeholder="Nama lengkap">
+        </div>
+        <div class="form-group">
+          <label>Lokasi / Alamat</label>
+          <input type="text" id="profLokasi" placeholder="Alamat">
+        </div>
+        <div class="form-group">
+          <label>No. WhatsApp</label>
+          <input type="text" id="profWA" placeholder="08xxxxxxxxxx">
+        </div>
+        <div class="form-group">
+          <label>Harga Jual (Rp/kg)</label>
+          <input type="number" id="profHargaJual" placeholder="0" min="0">
+        </div>
+      </div>
+      <button class="btn-primary" style="margin-top:14px" onclick="saveProfil()">💾 Simpan Profil</button>
+    </div>
+  </div>
+
+</div><!-- /wrap -->
+
+<!-- MODAL EDIT JUAL -->
+<div class="modal-overlay" id="modalEditJual">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modalEditJual')">✕</button>
+    <h3>✏️ Edit Transaksi Jual</h3>
+    <input type="hidden" id="editJualId">
+    <div class="form-grid">
+      <div class="form-group"><label>Tanggal</label><input type="date" id="editJualTgl"></div>
+      <div class="form-group"><label>Qty (kg)</label><input type="number" id="editJualQty" min="0"></div>
+      <div class="form-group"><label>Harga Jual (Rp/kg)</label><input type="number" id="editJualHarga" min="0"></div>
+      <div class="form-group"><label>Catatan</label><input type="text" id="editJualNote"></div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:16px">
+      <button class="btn-primary" onclick="saveEditJual()">💾 Simpan</button>
+      <button class="btn-secondary" onclick="closeModal('modalEditJual')">Batal</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL KONFIRMASI HAPUS -->
+<div class="modal-overlay" id="modalKonfirmHapus">
+  <div class="modal" style="max-width:360px;text-align:center">
+    <div style="font-size:2rem;margin-bottom:12px">🗑️</div>
+    <h3 style="margin-bottom:8px">Hapus Transaksi?</h3>
+    <p style="font-size:.85rem;color:var(--ink3);margin-bottom:20px">Data yang dihapus tidak dapat dikembalikan.</p>
+    <div style="display:flex;gap:10px;justify-content:center">
+      <button class="btn-red" id="konfirmHapusYa">Ya, Hapus</button>
+      <button class="btn-secondary" onclick="closeModal('modalKonfirmHapus')">Batal</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, collection, getDocs, getDoc, setDoc, addDoc, updateDoc, deleteDoc, doc, query, orderBy, where, serverTimestamp, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig={apiKey:"AIzaSyAkn48CNd2-q5NDirJNIr4VOb3QHrssFRA",authDomain:"ndokkmu-62880.firebaseapp.com",projectId:"ndokkmu-62880",storageBucket:"ndokkmu-62880.firebasestorage.app",messagingSenderId:"456250896637",appId:"1:456250896637:web:cf4b2adfdb2254b32d8e94"};
+const app=initializeApp(firebaseConfig);
+const auth=getAuth(app);
+const db=getFirestore(app);
+
+const rp=n=>n||n===0?'Rp '+Number(n).toLocaleString('id-ID'):'—';
+const fmt=n=>n||n===0?Number(n).toLocaleString('id-ID'):'—';
+function showToast(msg,type='success'){const t=document.getElementById('toast');t.textContent=msg;t.className='toast show '+type;clearTimeout(t._t);t._t=setTimeout(()=>t.className='toast',3000)}
+function isoDate(d){if(!d)return'';if(typeof d==='string')return d.slice(0,10);if(d.toDate)return d.toDate().toISOString().slice(0,10);return''}
+function today(){return new Date().toISOString().slice(0,10)}
+
+let currentUser=null,currentAgenId=null,currentAgenData=null;
+let _transfers=[],_juals=[],_batches=[];
+let _unsubTransfer=null;
+
+onAuthStateChanged(auth,async user=>{
+  if(!user){window.location.href='index.html';return}
+  currentUser=user;
+  const ud=await getDoc(doc(db,'users',user.uid));
+  if(!ud.exists()||ud.data().role!=='agen'){await signOut(auth);window.location.href='index.html';return}
+  currentAgenId=user.uid;
+  currentAgenData=ud.data();
+  document.getElementById('agenNameTop').textContent=currentAgenData.nama||user.email;
+  // Load profil
+  document.getElementById('profNama').value=currentAgenData.nama||'';
+  document.getElementById('profLokasi').value=currentAgenData.alamat||currentAgenData.lokasi||'';
+  document.getElementById('profWA').value=currentAgenData.whatsapp||'';
+  document.getElementById('profHargaJual').value=currentAgenData.harga_jual||'';
+  loadAll();
+});
+
+async function loadAll(){
+  if(_unsubTransfer)_unsubTransfer();
+  const qTr=query(collection(db,'transaksi_transfer'),where('agen_id','==',currentAgenId),orderBy('tanggal','asc'));
+  _unsubTransfer=onSnapshot(qTr,async(snap)=>{
+    const prevCount=_transfers.length;
+    _transfers=snap.docs.map(d=>({id:d.id,...d.data()}));
+    await loadJuals();
+    computeFIFO();
+    buildDashboard();
+    buildGrafik('semua');
+    setDefaultDates();
+    filterData('transfer','semua',document.querySelector('#sub-dtransfer .filter-btn'));
+    filterData('jual','semua',document.querySelector('#sub-djual .filter-btn'));
+    if(prevCount>0&&_transfers.length>prevCount) showToast('📦 Stok baru masuk dari Admin!','success');
+  });
+}
+
+async function loadJuals(){
+  const q=query(collection(db,'transaksi_jual_agen'),where('agen_id','==',currentAgenId),orderBy('tanggal','asc'));
+  const snap=await getDocs(q);
+  _juals=snap.docs.map(d=>({id:d.id,...d.data()}));
+}
+
+function setDefaultDates(){
+  const t=today();
+  document.getElementById('jualTgl').value=t;
+  document.getElementById('retTgl').value=t;
+  const stok=window._stats?window._stats.totalStok:0;
+  document.getElementById('noteJualTgl').textContent=t;
+  document.getElementById('noteJualStok').textContent=fmt(stok);
+  document.getElementById('noteRetStok').textContent=fmt(stok);
+  if(_transfers.length>0){
+    const last=_transfers[_transfers.length-1];
+    document.getElementById('noteJualHtr').textContent=rp(last.harga_jual);
+    document.getElementById('retNote').value='Retur ke Admin';
+  }
+  if(_juals.length>0) document.getElementById('noteJualHjual').textContent=rp(_juals[_juals.length-1].harga_jual);
+  // FIFO harga for return
+  const firstAvail=_batches.find(b=>b.sisa>0);
+  if(firstAvail) document.getElementById('retHarga').value=firstAvail.harga;
+}
+
+function computeFIFO(){
+  _batches=_transfers.map(t=>({
+    tgl:isoDate(t.tanggal),masuk:Number(t.qty)||0,harga:Number(t.harga_jual)||0,
+    terjual:0,sisa:Number(t.qty)||0,profit:0,id:t.id
+  }));
+  window._fifoDetail=[];
+  const sells=[..._juals].sort((a,b)=>isoDate(a.tanggal).localeCompare(isoDate(b.tanggal)));
+  for(const sell of sells){
+    let rem=Number(sell.qty)||0;
+    for(const b of _batches){
+      if(rem<=0)break;if(b.sisa<=0)continue;
+      const used=Math.min(b.sisa,rem);
+      const profit=used*(Number(sell.harga_jual)-b.harga);
+      b.terjual+=used;b.sisa-=used;b.profit+=profit;rem-=used;
+      window._fifoDetail.push({sell_id:sell.id,tgl_jual:isoDate(sell.tanggal),tgl_batch:b.tgl,qty:used,harga_jual:Number(sell.harga_jual),harga_kulak:b.harga,margin:Number(sell.harga_jual)-b.harga,profit});
+    }
+  }
+  const totalStok=_batches.reduce((s,b)=>s+b.sisa,0);
+  const nilaiStok=_batches.reduce((s,b)=>s+b.sisa*b.harga,0);
+  const totalModal=_transfers.reduce((s,t)=>s+Number(t.qty)*Number(t.harga_jual),0);
+  const totalOmzet=_juals.reduce((s,j)=>s+Number(j.qty)*Number(j.harga_jual),0);
+  const totalProfit=_batches.reduce((s,b)=>s+b.profit,0);
+  const maSum=_batches.reduce((s,b)=>s+b.masuk*b.harga,0);
+  const maQty=_batches.reduce((s,b)=>s+b.masuk,0);
+  const ma=maQty>0?maSum/maQty:0;
+  window._stats={totalStok,nilaiStok,totalModal,totalOmzet,totalProfit,ma};
+  if(currentAgenId){
+    setDoc(doc(db,'settings',currentAgenId),{stok_kg:totalStok,nilai_stok:nilaiStok,moving_average:ma,updated:serverTimestamp()},{merge:true}).catch(()=>{});
+  }
+}
+
+function buildDashboard(){
+  const s=window._stats||{};
+  document.getElementById('d-stok').textContent=fmt(s.totalStok)+' kg';
+  document.getElementById('d-nilai').textContent=rp(s.nilaiStok);
+  document.getElementById('d-ma').textContent=rp(Math.round(s.ma));
+  document.getElementById('d-modal').textContent=rp(s.totalModal);
+  document.getElementById('d-omzet').textContent=rp(s.totalOmzet);
+  document.getElementById('d-profit').textContent=rp(s.totalProfit);
+  if(_juals.length>0) document.getElementById('d-hjual').textContent=rp(_juals[_juals.length-1].harga_jual);
+
+  // Resume 7 transaksi terakhir
+  const allEvents=[];
+  for(const t of _transfers) allEvents.push({tgl:isoDate(t.tanggal),type:'transfer',qty:Number(t.qty),harga:Number(t.harga_jual),id:t.id});
+  for(const j of _juals) allEvents.push({tgl:isoDate(j.tanggal),type:'jual',qty:Number(j.qty),harga:Number(j.harga_jual),id:j.id});
+  allEvents.sort((a,b)=>b.tgl.localeCompare(a.tgl)||(b.id>a.id?1:-1));
+  const last7=allEvents.slice(0,7);
+  let html='';
+  let runStok=s.totalStok||0;
+  for(const ev of last7){
+    const profit=ev.type==='jual'?(window._fifoDetail||[]).filter(x=>x.sell_id===ev.id).reduce((s,x)=>s+x.profit,0):0;
+    if(ev.type==='transfer'){
+      html+=`<tr><td>${ev.tgl}</td><td>${fmt(ev.qty)}</td><td>${rp(ev.harga)}</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>`;
+    }else{
+      html+=`<tr><td>${ev.tgl}</td><td>—</td><td>—</td><td>${fmt(ev.qty)}</td><td>${rp(ev.harga)}</td><td>—</td><td style="font-weight:600">${rp(Math.round(profit))}</td></tr>`;
+    }
+  }
+  document.getElementById('resumeBody').innerHTML=html||'<tr><td colspan="7" style="text-align:center;color:#aaa">Tidak ada data</td></tr>';
+}
+
+// ---- Transaksi ----
+window.simpanJual=async function(){
+  const tgl=document.getElementById('jualTgl').value;
+  const qty=parseFloat(document.getElementById('jualQty').value);
+  const harga=parseFloat(document.getElementById('jualHarga').value);
+  const note=document.getElementById('jualNote').value.trim();
+  if(!tgl||!qty||!harga){showToast('Semua field wajib diisi','error');return}
+  if(qty>(window._stats?.totalStok||0)){showToast(`Qty melebihi stok tersedia (${fmt(window._stats?.totalStok||0)} kg)`,'error');return}
+  try{
+    await addDoc(collection(db,'transaksi_jual_agen'),{agen_id:currentAgenId,agen_nama:currentAgenData?.nama||'',tanggal:tgl,qty,harga_jual:harga,catatan:note,created:serverTimestamp()});
+    showToast('Data jual disimpan ✅');
+    document.getElementById('jualQty').value='';document.getElementById('jualNote').value='';
+    await loadJuals();computeFIFO();buildDashboard();buildGrafik('semua');
+    filterData('jual','semua',document.querySelector('#sub-djual .filter-btn'));
+  }catch(e){showToast('Error: '+e.message,'error')}
+}
+
+window.simpanReturn=async function(){
+  const tgl=document.getElementById('retTgl').value;
+  const qty=parseFloat(document.getElementById('retQty').value);
+  const harga=parseFloat(document.getElementById('retHarga').value);
+  if(!tgl||!qty){showToast('Tanggal dan qty wajib diisi','error');return}
+  if(qty>(window._stats?.totalStok||0)){showToast(`Qty melebihi stok tersedia (${fmt(window._stats?.totalStok||0)} kg)`,'error');return}
+  try{
+    await addDoc(collection(db,'transaksi_return'),{agen_id:currentAgenId,agen_nama:currentAgenData?.nama||'',tanggal:tgl,qty,harga_return:harga,catatan:`Retur ke Admin dari ${currentAgenData?.nama||''}`,created:serverTimestamp()});
+    await addDoc(collection(db,'transaksi_jual_agen'),{agen_id:currentAgenId,tanggal:tgl,qty,harga_jual:harga,catatan:'Retur ke Admin',is_return:true,created:serverTimestamp()});
+    showToast('Return berhasil disimpan ✅');
+    document.getElementById('retQty').value='';
+    await loadJuals();computeFIFO();buildDashboard();buildGrafik('semua');
+  }catch(e){showToast('Error: '+e.message,'error')}
+}
+
+// ---- Filter & Render ----
+window.filterData=function(type,range,btn){
+  if(btn){const par=btn.closest('.filter-bar');par.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active')}
+  let data=type==='transfer'?[..._transfers]:[..._juals];
+  const now=new Date();
+  if(range==='7'){const d=new Date(now);d.setDate(d.getDate()-6);data=data.filter(x=>isoDate(x.tanggal)>=d.toISOString().slice(0,10))}
+  else if(range==='30'){const d=new Date(now);d.setDate(d.getDate()-29);data=data.filter(x=>isoDate(x.tanggal)>=d.toISOString().slice(0,10))}
+  else if(range==='custom'){
+    const from=document.getElementById(type==='transfer'?'trDateFrom':'jualDateFrom').value;
+    const to=document.getElementById(type==='transfer'?'trDateTo':'jualDateTo').value;
+    if(from)data=data.filter(x=>isoDate(x.tanggal)>=from);
+    if(to)data=data.filter(x=>isoDate(x.tanggal)<=to);
+  }
+  if(type==='transfer')renderTransferTable(data);
+  else renderJualTable(data);
+}
+
+function renderTransferTable(data){
+  document.getElementById('trSumQty').textContent=fmt(data.reduce((s,t)=>s+Number(t.qty),0));
+  document.getElementById('trSumModal').textContent=rp(data.reduce((s,t)=>s+Number(t.qty)*Number(t.harga_jual),0));
+  let html='';
+  [...data].reverse().forEach(t=>{
+    html+=`<tr><td>${isoDate(t.tanggal)}</td><td>${fmt(t.qty)}</td><td>${rp(t.harga_jual)}</td><td>${rp(t.qty*t.harga_jual)}</td><td>${t.catatan||'—'}</td></tr>`;
+  });
+  document.getElementById('transferBody').innerHTML=html||'<tr><td colspan="5" style="text-align:center;color:#aaa">Tidak ada data</td></tr>';
+  window._trExport=data;
+}
+
+function renderJualTable(data){
+  document.getElementById('jualSumQty').textContent=fmt(data.reduce((s,j)=>s+Number(j.qty),0));
+  document.getElementById('jualSumOmzet').textContent=rp(data.reduce((s,j)=>s+Number(j.qty)*Number(j.harga_jual),0));
+  let html='';
+  [...data].reverse().forEach(j=>{
+    html+=`<tr>
+      <td>${isoDate(j.tanggal)}</td><td>${fmt(j.qty)}</td><td>${rp(j.harga_jual)}</td>
+      <td>${rp(j.qty*j.harga_jual)}</td><td>${j.catatan||'—'}</td>
+      <td>
+        <button class="btn-icon" onclick="editJual('${j.id}')">✏️</button>
+        <button class="btn-icon" onclick="hapusJual('${j.id}')">🗑️</button>
+      </td></tr>`;
+  });
+  document.getElementById('jualBody').innerHTML=html||'<tr><td colspan="6" style="text-align:center;color:#aaa">Tidak ada data</td></tr>';
+  window._jualExport=data;
+}
+
+// ---- Edit & Hapus Jual ----
+window.editJual=function(id){
+  const j=_juals.find(x=>x.id===id);if(!j)return;
+  document.getElementById('editJualId').value=id;
+  document.getElementById('editJualTgl').value=isoDate(j.tanggal);
+  document.getElementById('editJualQty').value=j.qty;
+  document.getElementById('editJualHarga').value=j.harga_jual;
+  document.getElementById('editJualNote').value=j.catatan||'';
+  document.getElementById('modalEditJual').classList.add('active');
+}
+window.saveEditJual=async function(){
+  const id=document.getElementById('editJualId').value;
+  const tgl=document.getElementById('editJualTgl').value;
+  const qty=parseFloat(document.getElementById('editJualQty').value);
+  const harga=parseFloat(document.getElementById('editJualHarga').value);
+  const note=document.getElementById('editJualNote').value;
+  try{
+    await updateDoc(doc(db,'transaksi_jual_agen',id),{tanggal:tgl,qty,harga_jual:harga,catatan:note});
+    showToast('Berhasil diperbarui ✅');
+    closeModal('modalEditJual');
+    await loadJuals();computeFIFO();buildDashboard();buildGrafik('semua');
+    filterData('jual','semua',null);
+  }catch(e){showToast('Error: '+e.message,'error')}
+}
+window.hapusJual=function(id){
+  document.getElementById('modalKonfirmHapus').classList.add('active');
+  const btn=document.getElementById('konfirmHapusYa');
+  const newBtn=btn.cloneNode(true);
+  btn.parentNode.replaceChild(newBtn,btn);
+  newBtn.onclick=async function(){
+    closeModal('modalKonfirmHapus');
+    try{
+      await deleteDoc(doc(db,'transaksi_jual_agen',id));
+      showToast('Dihapus ✅');
+      await loadJuals();computeFIFO();buildDashboard();buildGrafik('semua');
+      filterData('jual','semua',null);
+    }catch(e){showToast('Error: '+e.message,'error')}
+  }
+}
+
+// ---- Profil ----
+window.saveProfil=async function(){
+  if(!currentUser)return;
+  const nama=document.getElementById('profNama').value.trim();
+  const lokasi=document.getElementById('profLokasi').value.trim();
+  const wa=document.getElementById('profWA').value.trim();
+  const hargaJual=parseFloat(document.getElementById('profHargaJual').value)||0;
+  await updateDoc(doc(db,'users',currentUser.uid),{nama,alamat:lokasi,whatsapp:wa,harga_jual:hargaJual});
+  // Simpan harga_jual agen ke settings agen agar index.html bisa baca
+  await setDoc(doc(db,'settings',currentUser.uid),{harga_jual:hargaJual},{merge:true});
+  showToast('Profil disimpan ✅');
+}
+
+// ---- Export ----
+window.exportExcel=function(type){
+  const data=type==='transfer'?(window._trExport||_transfers):(window._jualExport||_juals);
+  const rows=type==='transfer'?
+    data.map(d=>({Tanggal:isoDate(d.tanggal),Qty:d.qty,'Harga Transfer':d.harga_jual,Subtotal:d.qty*d.harga_jual,Catatan:d.catatan})):
+    data.map(d=>({Tanggal:isoDate(d.tanggal),Qty:d.qty,'Harga Jual':d.harga_jual,Subtotal:d.qty*d.harga_jual,Catatan:d.catatan}));
+  const ws=XLSX.utils.json_to_sheet(rows);const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,type==='transfer'?'Transfer':'Jual');
+  XLSX.writeFile(wb,`ndokkmu_agen_${type}_${today()}.xlsx`);
+}
+window.exportHarian=function(){
+  const data=window._harianExportData||[];
+  if(!data.length){showToast('Tidak ada data','error');return}
+  const ws=XLSX.utils.json_to_sheet(data);const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'Harian');XLSX.writeFile(wb,`ndokkmu_agen_harian_${today()}.xlsx`);
+}
+window.exportBatch=function(){
+  const data=window._batchExportData||[];
+  if(!data.length){showToast('Tidak ada data','error');return}
+  const ws=XLSX.utils.json_to_sheet(data);const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'Batch');XLSX.writeFile(wb,`ndokkmu_agen_batch_${today()}.xlsx`);
+}
+window.exportFifo=function(){
+  const data=window._fifoExportData||[];
+  if(!data.length){showToast('Tidak ada data','error');return}
+  const ws=XLSX.utils.json_to_sheet(data);const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'FIFO');XLSX.writeFile(wb,`ndokkmu_agen_fifo_${today()}.xlsx`);
+}
+
+// ---- Grafik & Tabel ----
+let _chartH=null,_chartM=null;
+
+window.setGrafikFilter=function(range,btn){
+  if(btn){document.querySelectorAll('#tab-grafik .filter-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active')}
+  buildGrafik(range);
+}
+
+function getFilteredDates(range){
+  let allDates=[...new Set([..._transfers.map(x=>isoDate(x.tanggal)),..._juals.map(x=>isoDate(x.tanggal))].filter(Boolean))].sort();
+  if(range==='7'){const d=new Date();d.setDate(d.getDate()-6);const from=d.toISOString().slice(0,10);allDates=allDates.filter(x=>x>=from)}
+  else if(range==='30'){const d=new Date();d.setDate(d.getDate()-29);const from=d.toISOString().slice(0,10);allDates=allDates.filter(x=>x>=from)}
+  else if(range==='custom'){
+    const from=document.getElementById('grafikDateFrom').value;
+    const to=document.getElementById('grafikDateTo').value;
+    if(from)allDates=allDates.filter(x=>x>=from);
+    if(to)allDates=allDates.filter(x=>x<=to);
+  }
+  return allDates;
+}
+
+function buildGrafik(range='semua'){
+  const allDates=getFilteredDates(range);
+
+  // Chart Harga
+  let lastTr=null,lastJual=null;
+  const hTr=allDates.map(d=>{const t=_transfers.filter(x=>isoDate(x.tanggal)===d);if(t.length>0)lastTr=t[t.length-1].harga_jual;return lastTr});
+  const hJual=allDates.map(d=>{const j=_juals.filter(x=>isoDate(x.tanggal)===d);if(j.length>0)lastJual=j[j.length-1].harga_jual;return lastJual});
+  if(_chartH)_chartH.destroy();
+  _chartH=new Chart(document.getElementById('chartHarga').getContext('2d'),{
+    type:'line',data:{labels:allDates,datasets:[
+      {label:'Harga Transfer',data:hTr,borderColor:'#EF4444',tension:.3,fill:false,spanGaps:true},
+      {label:'Harga Jual',data:hJual,borderColor:'#00B87A',tension:.3,fill:false,spanGaps:true}
+    ]},
+    options:{responsive:true,plugins:{legend:{position:'top'}},scales:{y:{ticks:{callback:v=>'Rp '+v.toLocaleString('id-ID')}}}}
+  });
+
+  // Build running batches untuk MA per-event
+  const runBatches=[];
+  const allEvents=[];
+  for(const t of _transfers) allEvents.push({tgl:isoDate(t.tanggal),type:'transfer',qty:Number(t.qty),harga:Number(t.harga_jual),id:t.id});
+  for(const j of _juals) allEvents.push({tgl:isoDate(j.tanggal),type:'jual',qty:Number(j.qty),harga:Number(j.harga_jual),id:j.id});
+  allEvents.sort((a,b)=>{if(a.tgl<b.tgl)return -1;if(a.tgl>b.tgl)return 1;if(a.type==='transfer'&&b.type==='jual')return -1;if(a.type==='jual'&&b.type==='transfer')return 1;return 0});
+  for(const ev of allEvents){
+    const tSisa=runBatches.reduce((s,b)=>s+b.sisa,0);
+    const tNilai=runBatches.reduce((s,b)=>s+b.sisa*b.harga,0);
+    ev._avg_before=tSisa>0?tNilai/tSisa:0;
+    if(ev.type==='transfer'){
+      runBatches.push({harga:ev.harga,sisa:ev.qty});
+    }else{
+      let rem=ev.qty;
+      for(const b of runBatches){if(rem<=0)break;const used=Math.min(b.sisa,rem);b.sisa-=used;rem-=used}
+    }
+    const sisa=runBatches.reduce((s,b)=>s+b.sisa,0);
+    const nilai=runBatches.reduce((s,b)=>s+b.sisa*b.harga,0);
+    ev._stok=sisa;ev._avg=sisa>0?nilai/sisa:0;
+  }
+
+  // Chart Margin & MA — per tanggal jual
+  const jualDates=[...new Set(_juals.map(j=>isoDate(j.tanggal)).filter(Boolean))].sort().filter(d=>allDates.includes(d));
+  const margins=jualDates.map(d=>{
+    const evs=allEvents.filter(e=>e.tgl===d&&e.type==='jual');
+    if(!evs.length)return null;
+    const ev=evs[evs.length-1];
+    return ev.harga-ev._avg_before;
+  });
+  const maByDate=jualDates.map(d=>{
+    const evs=allEvents.filter(e=>e.tgl===d&&e.type==='jual');
+    if(!evs.length)return null;
+    return evs[evs.length-1]._avg_before;
+  });
+  if(_chartM)_chartM.destroy();
+  _chartM=new Chart(document.getElementById('chartMargin').getContext('2d'),{
+    type:'line',data:{labels:jualDates,datasets:[
+      {label:'Margin/kg',data:margins,borderColor:'#FF6B2C',tension:.3,fill:false,spanGaps:true},
+      {label:'Moving Average',data:maByDate,borderColor:'#3B6FFF',tension:.3,fill:false,spanGaps:true}
+    ]},
+    options:{responsive:true,plugins:{legend:{position:'top'}},scales:{y:{ticks:{callback:v=>'Rp '+v.toLocaleString('id-ID')}}}}
+  });
+
+  // Tabel Harian
+  const eventsFiltered=allEvents.filter(ev=>allDates.includes(ev.tgl));
+  let html='';window._harianExportData=[];
+  for(const ev of eventsFiltered){
+    const stok=ev._stok;
+    let masuk='—',beli='—',keluar='—',jual='—',margin='—',profit='—',avgFmt='—';
+    if(ev.type==='transfer'){masuk=fmt(ev.qty);beli=rp(ev.harga)}
+    else{
+      keluar=fmt(ev.qty);jual=rp(ev.harga);
+      const avg=ev._avg_before;
+      avgFmt=avg>0?('Rp '+avg.toFixed(2).replace('.',',')):'—';
+      margin=rp(Math.round(ev.harga-avg));
+      const p=(window._fifoDetail||[]).filter(x=>x.sell_id===ev.id).reduce((s,x)=>s+x.profit,0);
+      profit=rp(Math.round(p));
+    }
+    const stokFmt=Number.isInteger(stok)?fmt(stok):stok.toFixed(2).replace('.',',');
+    html+=`<tr><td>${ev.tgl}</td><td>${masuk}</td><td>${beli}</td><td>${keluar}</td><td>${jual}</td><td>${stokFmt}</td><td>${avgFmt}</td><td>${margin}</td><td>${profit}</td></tr>`;
+    window._harianExportData.push({Tanggal:ev.tgl,Type:ev.type==='transfer'?'Transfer':'Jual','Masuk(kg)':ev.type==='transfer'?ev.qty:0,'Harga Transfer':ev.type==='transfer'?ev.harga:0,'Keluar(kg)':ev.type==='jual'?ev.qty:0,'Harga Jual':ev.type==='jual'?ev.harga:0,'Stok Akhir':parseFloat(stok.toFixed(2)),'Moving Average':ev.type==='jual'?parseFloat(ev._avg_before.toFixed(2)):0,'Margin/kg':ev.type==='jual'?Math.round(ev.harga-ev._avg_before):0});
+  }
+  document.getElementById('tblHarian').innerHTML=html||'<tr><td colspan="9" style="text-align:center;color:#aaa">Tidak ada data</td></tr>';
+
+  // Tabel Batch
+  let bhtml='';window._batchExportData=[];
+  for(const b of _batches){
+    if(!allDates.includes(b.tgl))continue;
+    const status=b.sisa<=0?'<span class="badge badge-red">Habis</span>':b.sisa<b.masuk?'<span class="badge badge-yellow">Sebagian</span>':'<span class="badge badge-green">Ada</span>';
+    bhtml+=`<tr><td>${b.tgl}</td><td>${fmt(b.masuk)}</td><td>${rp(b.harga)}</td><td>${fmt(b.terjual)}</td><td>${fmt(Math.round(b.sisa))}</td><td>${rp(Math.round(b.profit))}</td><td>${status}</td></tr>`;
+    window._batchExportData.push({'Tgl Batch':b.tgl,'Masuk(kg)':b.masuk,'Harga Transfer':b.harga,Terjual:b.terjual,'Sisa(kg)':Math.round(b.sisa),'Total Profit':Math.round(b.profit),Status:b.sisa<=0?'Habis':b.sisa<b.masuk?'Sebagian':'Ada'});
+  }
+  document.getElementById('tblBatch').innerHTML=bhtml||'<tr><td colspan="7" style="text-align:center;color:#aaa">Tidak ada data</td></tr>';
+
+  // Tabel FIFO
+  const fifoFiltered=(window._fifoDetail||[]).filter(f=>allDates.includes(f.tgl_jual));
+  let fhtml='';window._fifoExportData=[];
+  for(const f of fifoFiltered){
+    fhtml+=`<tr><td>${f.tgl_jual}</td><td>${f.tgl_batch}</td><td>${fmt(f.qty)}</td><td>${rp(f.harga_jual)}</td><td>${rp(f.harga_kulak)}</td><td>${rp(f.margin)}</td><td style="font-weight:600;color:${f.profit>=0?'var(--gr)':'var(--re)'}">${rp(Math.round(f.profit))}</td></tr>`;
+    window._fifoExportData.push({'Tgl Jual':f.tgl_jual,'Tgl Batch':f.tgl_batch,'Qty(kg)':f.qty,'Harga Jual':f.harga_jual,'Harga Transfer':f.harga_kulak,'Margin/kg':f.margin,Profit:Math.round(f.profit)});
+  }
+  document.getElementById('tblFifo').innerHTML=fhtml||'<tr><td colspan="7" style="text-align:center;color:#aaa">Tidak ada data</td></tr>';
+  const totalP=fifoFiltered.reduce((s,f)=>s+f.profit,0);
+  document.getElementById('fifoValidasi').textContent=`Urutan batch sudah benar. | Total profit: ${rp(Math.round(totalP))}`;
+}
+
+// ---- Navigation ----
+window.doLogout=async function(){await signOut(auth);window.location.href='index.html'}
+window.switchTab=function(tab){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nb').forEach(n=>n.classList.remove('on'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  const el=document.getElementById('nb-'+tab);if(el)el.classList.add('on');
+}
+window.switchSubTab=function(sub,btn){
+  ['jual','return'].forEach(s=>{document.getElementById('sub-'+s).style.display='none'});
+  document.getElementById('sub-'+sub).style.display='';
+  btn.closest('div').querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+window.switchDataTab=function(sub,btn){
+  ['dtransfer','djual'].forEach(s=>{document.getElementById('sub-'+s).style.display='none'});
+  document.getElementById('sub-'+sub).style.display='';
+  btn.closest('div').querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+window.closeModal=function(id){document.getElementById(id).classList.remove('active')}
+document.querySelectorAll('.modal-overlay').forEach(o=>{o.addEventListener('click',function(e){if(e.target===this)this.classList.remove('active')})});
+</script>
+</body>
+</html>
