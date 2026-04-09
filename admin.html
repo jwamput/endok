@@ -1236,29 +1236,55 @@ function buildGrafik(){
 }
 const var_yolk='#F5A623';
 
-function buildTabelHarian(allDates){
-  let stokRunning=0, html='';
-  let sumModa=0, sumQK=0;
-  for(const d of allDates){
-    const masuk=_kulak.filter(x=>isoDate(x.tanggal)===d).reduce((s,k)=>s+Number(k.qty),0);
-    const beli=_kulak.filter(x=>isoDate(x.tanggal)===d).map(k=>rp(k.harga_beli)).join(', ')||'—';
-    const keluar=[..._jual,..._transfer].filter(x=>isoDate(x.tanggal)===d).reduce((s,x)=>s+Number(x.qty),0);
-    const jual=[..._jual].filter(x=>isoDate(x.tanggal)===d).map(j=>rp(j.harga_jual)).join(', ')||'—';
-    stokRunning+=masuk-keluar;
-    const kBatch=_kulak.filter(x=>isoDate(x.tanggal)===d);
-    kBatch.forEach(k=>{sumModa+=Number(k.qty)*Number(k.harga_beli);sumQK+=Number(k.qty)});
-    const avg=sumQK>0?sumModa/sumQK:0;
-    const margin=_jual.filter(x=>isoDate(x.tanggal)===d).length>0?
-      _jual.filter(x=>isoDate(x.tanggal)===d)[0].harga_jual-avg:0;
-    const dayProfit=window._fifoDetail.filter(x=>x.tgl_jual===d).reduce((s,x)=>s+x.profit,0);
-    html+=`<tr>
-      <td>${d}</td><td>${fmt(masuk)}</td><td>${beli}</td>
-      <td>${fmt(keluar)}</td><td>${jual}</td>
-      <td>${fmt(stokRunning)}</td><td>${rp(Math.round(avg))}</td>
-      <td>${rp(Math.round(margin))}</td><td>${rp(dayProfit)}</td>
+function buildTabelHarian(allDates) {
+  // Ambil tanggal unik dan urutkan agar tidak tumpuk
+  const uniqueDates = [...new Set(allDates)].sort();
+  
+  let stokRunning = 0, html = '';
+  let sumModa = 0, sumQK = 0;
+
+  for (const d of uniqueDates) {
+    // 1. Data Masuk (Kulak)
+    const kHariIni = _kulak.filter(x => isoDate(x.tanggal) === d);
+    const masuk = kHariIni.reduce((s, k) => s + Number(k.qty), 0);
+    const beli = kHariIni.map(k => rp(k.harga_beli)).join(', ') || '—';
+
+    // 2. Data Keluar (Jual + Transfer)
+    const keluar = [..._jual, ..._transfer].filter(x => isoDate(x.tanggal) === d).reduce((s, x) => s + Number(x.qty), 0);
+    const jual = _jual.filter(x => isoDate(x.tanggal) === d).map(j => rp(j.harga_jual)).join(', ') || '—';
+
+    // 3. Update Stok Berjalan
+    stokRunning += masuk - keluar;
+
+    // 4. Perhitungan Moving Average
+    kHariIni.forEach(k => {
+      sumModa += Number(k.qty) * Number(k.harga_beli);
+      sumQK += Number(k.qty);
+    });
+    const avg = sumQK > 0 ? sumModa / sumQK : 0;
+
+    // 5. Margin & Profit
+    const jHariIni = _jual.filter(x => isoDate(x.tanggal) === d);
+    const margin = jHariIni.length > 0 ? jHariIni[0].harga_jual - avg : 0;
+    const dayProfit = (window._fifoDetail || []).filter(x => x.tgl_jual === d).reduce((s, x) => s + x.profit, 0);
+
+    html += `<tr>
+      <td>${d}</td>
+      <td>${fmt(masuk)}</td>
+      <td>${beli}</td>
+      <td>${fmt(keluar)}</td>
+      <td>${jual}</td>
+      <td>${fmt(Math.round(stokRunning))}</td>
+      <td>${rp(Math.round(avg))}</td>
+      <td>${rp(Math.round(margin))}</td>
+      <td>${rp(Math.round(dayProfit))}</td>
     </tr>`;
   }
-  document.getElementById('tblHarian').innerHTML=html||'<tr><td colspan="9" style="text-align:center;color:#aaa">Tidak ada data</td></tr>';
+  
+  const target = document.getElementById('tblHarian');
+  if (target) {
+    target.innerHTML = html || '<tr><td colspan="9" style="text-align:center;color:#aaa">Tidak ada data</td></tr>';
+  }
 }
 
 function buildTabelBatch(){
