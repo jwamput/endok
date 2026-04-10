@@ -1,0 +1,1974 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NdokkMu — Panel Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --ink:#111318;--ink2:#2D3142;--ink3:#6B7280;--ink4:#C4C9D4;
+  --bg:#F4F6FA;--bg2:#ECEEF5;--bg3:#E0E3EF;
+  --surface:#FFFFFF;
+  --border:#DDE1EF;
+  --or:#FF6B2C;--or-s:#FFF1EB;--or-d:#D94E12;--or-glow:rgba(255,107,44,0.25);
+  --gr:#00B87A;--gr-s:#E6FBF4;--gr-d:#007A52;
+  --re:#EF4444;--re-s:#FEF2F2;--re-d:#B91C1C;
+  --bl:#3B6FFF;--bl-s:#EEF3FF;--bl-d:#1E3A8A;
+  --am:#F59E0B;--am-s:#FFFBEB;--am-d:#92400E;
+  --sh:0 1px 3px rgba(17,19,24,0.06), 0 4px 16px rgba(17,19,24,0.06);
+  --sh2:0 8px 32px rgba(17,19,24,0.12);
+  --r:14px;--rf:999px;
+  --nav-h:68px;
+  /* compat aliases */
+  --yolk:var(--or);--yolk-dark:var(--or-d);--shell:var(--bg);--brown:var(--ink);--brown-mid:var(--ink2);
+  --green:var(--gr);--red:var(--re);--blue:var(--bl);--card:var(--surface);--shadow:var(--sh);
+}
+
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--ink);font-size:15px;min-height:100vh}
+body{padding-bottom:calc(var(--nav-h) + 12px)}
+
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--bg3);border-radius:99px}
+
+/* ── HEADER ── */
+.hdr{
+  background:rgba(255,255,255,0.85);
+  backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);
+  padding:12px 20px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:300;gap:12px;
+}
+.hdr-logo{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.hdr-icon{
+  width:38px;height:38px;
+  background:linear-gradient(135deg,var(--or) 0%,var(--or-d) 100%);
+  border-radius:10px;display:flex;align-items:center;justify-content:center;
+  font-size:20px;flex-shrink:0;
+  box-shadow:0 4px 12px var(--or-glow);
+}
+.hdr-title{font-size:16px;font-weight:900;color:var(--ink);letter-spacing:-0.5px;line-height:1.1}
+.hdr-sub{font-size:9px;color:var(--ink3);font-weight:600;letter-spacing:0.5px;text-transform:uppercase;margin-top:1px}
+.hdr-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.hdr-user{
+  font-size:12px;font-weight:700;color:var(--ink2);
+  background:var(--bg2);padding:6px 12px;border-radius:var(--rf);
+  display:flex;align-items:center;gap:6px;border:1px solid var(--border);
+}
+.hdr-user-dot{width:7px;height:7px;background:var(--gr);border-radius:50%;display:inline-block;flex-shrink:0}
+.hdr-logout{
+  background:transparent;border:1px solid var(--border);
+  color:var(--ink3);padding:7px 12px;border-radius:10px;
+  font-size:12px;font-weight:600;cursor:pointer;
+  transition:all 0.2s;font-family:'Plus Jakarta Sans',sans-serif;
+}
+.hdr-logout:hover{background:var(--re-s);color:var(--re);border-color:var(--re)}
+
+/* ── BOTTOM NAV ── */
+.nav{
+  position:fixed;bottom:0;left:0;right:0;
+  background:rgba(255,255,255,0.95);
+  backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);
+  border-top:1px solid var(--border);
+  display:flex;z-index:300;height:var(--nav-h);
+  padding-bottom:env(safe-area-inset-bottom,4px);
+}
+.nb{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:8px 4px 6px;border:none;background:transparent;
+  color:var(--ink3);font-size:9px;font-weight:700;
+  font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;gap:5px;
+  transition:color 0.2s;letter-spacing:0.4px;text-transform:uppercase;
+  position:relative;
+}
+.ni{
+  width:28px;height:28px;border-radius:9px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;transition:all 0.2s;
+}
+.nb.on{color:var(--or)}
+.nb.on .ni{
+  background:var(--or-s);
+  transform:scale(1.1);
+  box-shadow:0 2px 8px var(--or-glow);
+}
+.nb::after{
+  content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);
+  width:0;height:2px;background:var(--or);border-radius:0 0 4px 4px;
+  transition:width 0.2s;
+}
+.nb.on::after{width:28px}
+.nb-logout{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:8px 4px 6px;border:none;background:transparent;
+  color:var(--re);font-size:9px;font-weight:700;
+  font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;gap:5px;
+  transition:all 0.2s;letter-spacing:0.4px;text-transform:uppercase;
+  border-left:1px solid var(--border);
+}
+.nb-logout:hover{background:var(--re-s)}
+.nb-logout .ni{width:28px;height:28px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px}
+
+/* ── LAYOUT ── */
+.wrap{max-width:960px;margin:0 auto;padding:20px 16px 24px}
+/* hide old sidebar/main-wrap structure */
+.sidebar,.main-wrap,.topbar,.content,.overlay-bg,.bottom-nav{display:none!important}
+
+/* ── GRIDS ── */
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:20px}
+
+/* ── PANELS ── */
+.tab-panel{display:none}
+.tab-panel.active{display:block;animation:fi .22s ease}
+@keyframes fi{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── KPI CARDS ── */
+.card{background:var(--surface);border-radius:var(--r);padding:20px;box-shadow:var(--sh);border:1px solid var(--border)}
+.kpi-card{padding:18px 16px;position:relative;overflow:hidden}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.kpi-card.c-yolk::before{background:linear-gradient(90deg,var(--or),#FF9A5C)}
+.kpi-card.c-green::before{background:linear-gradient(90deg,var(--gr),#00d68f)}
+.kpi-card.c-blue::before{background:linear-gradient(90deg,var(--bl),#6B9FFF)}
+.kpi-card.c-red::before{background:linear-gradient(90deg,var(--re),#f87171)}
+.kpi-label{font-size:.68rem;color:var(--ink3);text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:8px}
+.kpi-val{font-size:1.45rem;font-weight:800;color:var(--ink);margin:4px 0;letter-spacing:-0.5px}
+.kpi-sub{font-size:.72rem;color:var(--ink4);font-weight:500}
+
+/* ── SECTION HEADER ── */
+.section-hd{
+  font-weight:800;font-size:.95rem;color:var(--ink);
+  margin-bottom:14px;display:flex;align-items:center;gap:8px;
+}
+.section-hd::after{content:'';flex:1;height:2px;background:linear-gradient(to right,var(--or-glow),transparent);border-radius:2px}
+
+/* ── TABLE ── */
+.tbl-wrap{
+  overflow-x:auto;-webkit-overflow-scrolling:touch;
+  border-radius:var(--r);border:1px solid var(--border);
+  box-shadow:var(--sh);background:var(--surface);
+}
+.tbl-wrap table{min-width:500px;width:100%;border-collapse:collapse}
+table{width:100%;border-collapse:collapse;background:var(--surface);font-size:.84rem}
+thead{background:var(--bg)}
+thead th{
+  color:var(--ink3);font-weight:700;padding:11px 14px;
+  text-align:left;white-space:nowrap;font-size:.72rem;
+  text-transform:uppercase;letter-spacing:0.8px;
+  border-bottom:1px solid var(--border);
+  position:sticky;top:0;background:var(--bg);z-index:1;
+}
+tbody tr{border-bottom:1px solid var(--bg2);transition:background .15s}
+tbody tr:hover{background:var(--bg)}
+tbody tr:last-child td{border-bottom:none}
+tbody td{
+  padding:12px 14px;color:var(--ink2);
+  font-size:.84rem;white-space:nowrap;
+  vertical-align:middle;border-bottom:1px solid var(--bg2);
+}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:var(--rf);font-size:.7rem;font-weight:700}
+.badge-green{background:var(--gr-s);color:#007A52}
+.badge-red{background:var(--re-s);color:#B91C1C}
+.badge-yellow{background:var(--am-s);color:#92400E}
+.btn-icon{background:none;border:none;cursor:pointer;padding:5px 7px;border-radius:8px;font-size:.95rem;transition:background .15s}
+.btn-icon:hover{background:var(--bg2)}
+
+/* ── FORMS ── */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-group{margin-bottom:0}
+.form-group label{display:block;font-size:.75rem;font-weight:700;color:var(--ink2);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.6px}
+.form-group input,.form-group select,.form-group textarea{
+  width:100%;padding:11px 13px;border:1.5px solid var(--border);border-radius:10px;
+  font-size:.9rem;font-family:'Plus Jakarta Sans',sans-serif;color:var(--ink);
+  background:var(--bg);outline:none;transition:border-color .2s,box-shadow .2s;
+}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{
+  border-color:var(--or);box-shadow:0 0 0 3px var(--or-s);background:var(--surface);
+}
+.form-group.full{grid-column:1/-1}
+.form-note{
+  background:var(--am-s);border-left:3px solid var(--am);
+  border-radius:10px;padding:10px 14px;font-size:.8rem;color:#78350F;
+  margin-bottom:14px;font-weight:500;
+}
+.btn-primary{
+  background:linear-gradient(135deg,var(--or) 0%,var(--or-d) 100%);
+  color:#fff;border:none;border-radius:var(--rf);
+  padding:11px 26px;font-family:'Plus Jakarta Sans',sans-serif;
+  font-weight:700;font-size:.88rem;cursor:pointer;
+  transition:all .2s;box-shadow:0 4px 14px var(--or-glow);
+}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 20px var(--or-glow)}
+.btn-primary:active{transform:translateY(0)}
+.btn-secondary{
+  background:var(--bg2);color:var(--ink2);border:1px solid var(--border);
+  border-radius:var(--rf);padding:11px 26px;font-family:'Plus Jakarta Sans',sans-serif;
+  font-weight:700;font-size:.88rem;cursor:pointer;transition:background .2s;
+}
+.btn-secondary:hover{background:var(--bg3)}
+.btn-green{
+  background:linear-gradient(135deg,var(--gr) 0%,#007A52 100%);color:#fff;
+  border:none;border-radius:var(--rf);padding:9px 20px;
+  font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:.82rem;
+  cursor:pointer;transition:all .15s;box-shadow:0 3px 10px rgba(0,184,122,0.25);
+}
+.btn-green:hover{transform:translateY(-1px);box-shadow:0 5px 16px rgba(0,184,122,0.35)}
+.btn-red{
+  background:linear-gradient(135deg,var(--re) 0%,var(--re-d) 100%);color:#fff;
+  border:none;border-radius:var(--rf);padding:9px 20px;
+  font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:.82rem;
+  cursor:pointer;transition:all .15s;
+}
+
+/* ── FILTER BAR ── */
+.filter-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
+.filter-btn{
+  background:var(--surface);border:1.5px solid var(--border);
+  border-radius:var(--rf);padding:6px 16px;font-size:.78rem;
+  font-weight:700;cursor:pointer;transition:all .15s;color:var(--ink3);
+  font-family:'Plus Jakarta Sans',sans-serif;
+}
+.filter-btn.active{background:var(--or);color:#fff;border-color:var(--or);box-shadow:0 2px 8px var(--or-glow)}
+.filter-btn:hover:not(.active){border-color:var(--or);color:var(--or)}
+.filter-dates{display:flex;gap:8px;align-items:center;font-size:.8rem;font-weight:600;color:var(--ink3)}
+.filter-dates input{
+  border:1.5px solid var(--border);border-radius:9px;
+  padding:6px 10px;font-size:.79rem;outline:none;background:var(--surface);
+  transition:border-color .2s;
+}
+.filter-dates input:focus{border-color:var(--or)}
+
+/* ── MODAL ── */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(17,19,24,0.6);backdrop-filter:blur(6px);z-index:300;align-items:center;justify-content:center;padding:16px}
+.modal-overlay.active{display:flex}
+.modal{
+  background:var(--surface);border-radius:20px;padding:28px 26px;
+  width:100%;max-width:440px;box-shadow:var(--sh2);
+  position:relative;animation:popIn .2s ease;border:1px solid var(--border);
+  max-height:90vh;overflow-y:auto;
+}
+@keyframes popIn{from{transform:scale(.94);opacity:0}to{transform:scale(1);opacity:1}}
+.modal-close{
+  position:absolute;top:14px;right:16px;background:var(--bg2);
+  border:none;width:30px;height:30px;border-radius:50%;
+  font-size:1rem;color:var(--ink3);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:all .2s;
+}
+.modal-close:hover{background:var(--re-s);color:var(--re)}
+.modal h3{font-weight:800;font-size:1.05rem;color:var(--ink);margin-bottom:18px;letter-spacing:-0.3px}
+
+/* ── TOAST ── */
+.toast{
+  position:fixed;bottom:calc(var(--nav-h) + 12px);right:24px;
+  background:var(--ink);color:#fff;padding:12px 20px;
+  border-radius:12px;font-size:.85rem;font-weight:600;
+  z-index:999;display:none;box-shadow:var(--sh2);
+}
+.toast.show{display:block;animation:slideUp .25s ease}
+@keyframes slideUp{from{transform:translateY(16px);opacity:0}to{transform:translateY(0);opacity:1}}
+.toast.success{border-left:4px solid var(--gr)}
+.toast.error{border-left:4px solid var(--re)}
+
+/* ── CHART ── */
+.chart-wrap{background:var(--surface);border-radius:var(--r);padding:20px;box-shadow:var(--sh);border:1px solid var(--border);margin-bottom:20px}
+.chart-wrap canvas{max-height:300px}
+
+/* ── SPINNER ── */
+.spinner{width:20px;height:20px;border:2.5px solid var(--bg3);border-top-color:var(--or);border-radius:50%;animation:spin .7s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-row{text-align:center;padding:24px;color:var(--ink4);font-size:.85rem}
+
+/* ── AGEN SUMMARY ── */
+.agen-summary-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin-bottom:20px;width:100%}
+.agen-sum-card{background:var(--surface);border-radius:var(--r);padding:16px 18px;box-shadow:var(--sh);border:1px solid var(--border);border-left:4px solid var(--or)}
+.agen-sum-name{font-weight:800;font-size:.95rem;margin-bottom:8px;color:var(--ink)}
+.agen-sum-row{display:flex;justify-content:space-between;font-size:.82rem;color:var(--ink3);margin-bottom:4px}
+.agen-sum-row span:last-child{font-weight:700;color:var(--ink2)}
+
+/* ── RESPONSIVE ── */
+@media(min-width:640px){
+  .grid-4{grid-template-columns:repeat(4,1fr)}
+  .grid-3{grid-template-columns:repeat(3,1fr)}
+}
+@media(max-width:860px){
+  .wrap{padding:16px 14px 24px}
+}
+@media(max-width:640px){
+  .grid-4{grid-template-columns:1fr 1fr}
+  .grid-3{grid-template-columns:1fr 1fr}
+  .form-grid{grid-template-columns:1fr}
+  .chart-wrap canvas{max-height:220px}
+  .filter-bar{gap:6px}
+  .filter-btn{padding:5px 10px;font-size:.74rem}
+}
+@media(max-width:480px){
+  .grid-4{grid-template-columns:1fr 1fr}
+  .grid-3{grid-template-columns:1fr}
+  .kpi-val{font-size:1.15rem}
+  .kpi-label{font-size:.66rem}
+  .filter-dates{flex-wrap:wrap;gap:4px}
+  .filter-dates input{font-size:.74rem;padding:4px 8px}
+  .modal{padding:22px 16px}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="hdr">
+  <div class="hdr-logo">
+    <div class="hdr-icon">🥚</div>
+    <div>
+      <div class="hdr-title">NdokkMu</div>
+      <div class="hdr-sub">Panel Admin</div>
+    </div>
+  </div>
+  <div class="hdr-right">
+    <div class="hdr-user"><span class="hdr-user-dot"></span><span id="adminNameTop">Admin</span></div>
+    <button class="hdr-logout" onclick="doLogout()">Logout</button>
+  </div>
+</header>
+
+<!-- BOTTOM NAV -->
+<nav class="nav">
+  <button class="nb on" id="nb-dashboard" onclick="switchTab('dashboard')">
+    <div class="ni">📊</div>Dashboard
+  </button>
+  <button class="nb" id="nb-akun" onclick="switchTab('akun')">
+    <div class="ni">👥</div>Akun
+  </button>
+  <button class="nb" id="nb-transaksi" onclick="switchTab('transaksi')">
+    <div class="ni">💳</div>Transaksi
+  </button>
+  <button class="nb" id="nb-data" onclick="switchTab('data')">
+    <div class="ni">📋</div>Data
+  </button>
+  <button class="nb" id="nb-grafik" onclick="switchTab('grafik')">
+    <div class="ni">📈</div>Grafik
+  </button>
+
+</nav>
+
+<div class="wrap">
+
+    <!-- ===== DASHBOARD ===== -->
+    <div class="tab-panel active" id="tab-dashboard">
+      <div class="grid-4">
+        <div class="card kpi-card c-yolk">
+          <div class="kpi-label">Stok Admin</div>
+          <div class="kpi-val" id="d-stok">—</div>
+          <div class="kpi-sub">Kilogram tersedia</div>
+        </div>
+        <div class="card kpi-card c-green">
+          <div class="kpi-label">Nilai Stok</div>
+          <div class="kpi-val" id="d-nilai">—</div>
+          <div class="kpi-sub">Berdasarkan modal FIFO</div>
+        </div>
+        <div class="card kpi-card c-blue">
+          <div class="kpi-label">Moving Average</div>
+          <div class="kpi-val" id="d-ma">—</div>
+          <div class="kpi-sub">Rata-rata harga kulak</div>
+        </div>
+        <div class="card kpi-card c-red">
+          <div class="kpi-label">Harga Jual Terakhir</div>
+          <div class="kpi-val" id="d-hjual">—</div>
+          <div class="kpi-sub">Per kilogram</div>
+        </div>
+      </div>
+      <div class="grid-3">
+        <div class="card kpi-card c-yolk">
+          <div class="kpi-label">Total Modal</div>
+          <div class="kpi-val" id="d-modal">—</div>
+          <div class="kpi-sub">Akumulasi kulak</div>
+        </div>
+        <div class="card kpi-card c-green">
+          <div class="kpi-label">Total Omzet</div>
+          <div class="kpi-val" id="d-omzet">—</div>
+          <div class="kpi-sub">Akumulasi penjualan</div>
+        </div>
+        <div class="card kpi-card c-blue">
+          <div class="kpi-label">Total Profit</div>
+          <div class="kpi-val" id="d-profit">—</div>
+          <div class="kpi-sub">Omzet - Modal</div>
+        </div>
+      </div>
+
+      <div class="section-hd">📅 Resume 7 Transaksi Terakhir</div>
+      <div class="card" style="margin-bottom:24px">
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Tanggal</th><th>Kulak (kg)</th><th>Harga Beli</th><th>Jual (kg)</th><th>Harga Jual</th><th>Stok Akhir</th><th>Profit</th></tr></thead>
+            <tbody id="resumeBody"><tr><td colspan="7" class="loading-row"><span class="spinner"></span></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="section-hd">👥 Ringkasan Per Agen</div>
+      <div class="agen-summary-grid" id="agenSummaryGrid">
+        <div style="color:#aaa;padding:16px"><span class="spinner"></span></div>
+      </div>
+    </div>
+
+    <!-- ===== AKUN ===== -->
+    <div class="tab-panel" id="tab-akun">
+      <div class="section-hd">👥 Manajemen Akun Agen & User</div>
+      <div style="margin-bottom:14px">
+        <button class="btn-primary" onclick="openModalAgen()">+ Tambah Agen</button>
+      </div>
+      <div class="tbl-wrap" style="margin-bottom:32px">
+        <table>
+          <thead><tr><th>Nama</th><th>Role</th><th>Alamat</th><th>WhatsApp</th><th>Email</th><th>Aksi</th></tr></thead>
+          <tbody id="akunBody"><tr><td colspan="6" class="loading-row"><span class="spinner"></span></td></tr></tbody>
+        </table>
+      </div>
+
+      <div class="section-hd">🏢 Profil Admin</div>
+      <div class="card">
+        <div class="form-grid">
+          <div class="form-group full">
+            <label>Nama Admin</label>
+            <input type="text" id="profNama" placeholder="Nama lengkap">
+          </div>
+          <div class="form-group">
+            <label>Lokasi / Alamat</label>
+            <input type="text" id="profLokasi" placeholder="Alamat gudang">
+          </div>
+          <div class="form-group">
+            <label>No. WhatsApp</label>
+            <input type="text" id="profWA" placeholder="08xxxxxxxxxx">
+          </div>
+          <div class="form-group">
+            <label>Harga Jual (Rp/kg)</label>
+            <input type="number" id="profHargaJual" placeholder="0" min="0">
+          </div>
+        </div>
+        <button class="btn-primary" style="margin-top:14px" onclick="saveProfil()">Simpan Profil</button>
+      </div>
+    </div>
+
+    <!-- ===== TRANSAKSI ===== -->
+    <div class="tab-panel" id="tab-transaksi">
+      <div class="filter-bar" style="margin-bottom:20px">
+        <button class="filter-btn active" onclick="switchSubTab('kulak',this)">📦 Input Kulak</button>
+        <button class="filter-btn" onclick="switchSubTab('jual',this)">🛒 Input Jual</button>
+        <button class="filter-btn" onclick="switchSubTab('transfer',this)">🚚 Transfer ke Agen</button>
+      </div>
+
+      <!-- Kulak -->
+      <div id="sub-kulak">
+        <div class="form-note" id="noteKulak">💡 Kulak terakhir: <b id="noteKulakTgl">—</b> | Harga kulak terakhir: <b id="noteKulakHarga">—</b> | Harga jual terakhir: <b id="noteHjual">—</b></div>
+        <div class="card">
+          <div class="form-grid">
+            <div class="form-group"><label>Tanggal</label><input type="date" id="kulakTgl"></div>
+            <div class="form-group"><label>Qty (kg)</label><input type="number" id="kulakQty" min="0" placeholder="0"></div>
+            <div class="form-group"><label>Harga Beli (Rp/kg)</label><input type="number" id="kulakHarga" min="0" placeholder="0"></div>
+            <div class="form-group"><label>Catatan (opsional)</label><input type="text" id="kulakNote" placeholder="Opsional"></div>
+          </div>
+          <button class="btn-primary" style="margin-top:14px" onclick="simpanKulak()">💾 Simpan</button>
+        </div>
+      </div>
+
+      <!-- Jual -->
+      <div id="sub-jual" style="display:none">
+        <div class="form-note">💡 Jual terakhir: <b id="noteJualTgl">—</b> | Harga jual terakhir: <b id="noteJualHjual">—</b> | Harga kulak terakhir: <b id="noteJualHkulak">—</b> | Stok: <b id="noteJualStok">—</b> kg</div>
+        <div class="card">
+          <div class="form-grid">
+            <div class="form-group"><label>Tanggal</label><input type="date" id="jualTgl"></div>
+            <div class="form-group"><label>Qty (kg)</label><input type="number" id="jualQty" min="0" placeholder="0"></div>
+            <div class="form-group"><label>Harga Jual (Rp/kg)</label><input type="number" id="jualHarga" min="0" placeholder="0"></div>
+            <div class="form-group"><label>Catatan (opsional)</label><input type="text" id="jualNote" placeholder="Opsional"></div>
+          </div>
+          <button class="btn-primary" style="margin-top:14px" onclick="simpanJual()">💾 Simpan</button>
+        </div>
+      </div>
+
+      <!-- Transfer -->
+      <div id="sub-transfer" style="display:none">
+        <div class="form-note">💡 Transfer terakhir: <b id="noteTransferTgl">—</b> | Harga transfer terakhir: <b id="noteTransferHarga">—</b> | Stok: <b id="noteTransferStok">—</b> kg</div>
+        <div class="card">
+          <div class="form-grid">
+            <div class="form-group full">
+              <label>Pilih Agen</label>
+              <select id="transferAgen"><option value="">-- Pilih Agen --</option></select>
+            </div>
+            <div class="form-group"><label>Tanggal</label><input type="date" id="transferTgl"></div>
+            <div class="form-group"><label>Qty (kg)</label><input type="number" id="transferQty" min="0" placeholder="0"></div>
+            <div class="form-group"><label>Harga Jual (Rp/kg)</label><input type="number" id="transferHarga" min="0" placeholder="0"></div>
+            <div class="form-group full"><label>Catatan</label><input type="text" id="transferNote" placeholder="Otomatis terisi keterangan transfer"></div>
+          </div>
+          <button class="btn-primary" style="margin-top:14px" onclick="simpanTransfer()">💾 Simpan</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== DATA ===== -->
+    <div class="tab-panel" id="tab-data">
+      <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap">
+        <button class="filter-btn active" onclick="switchDataTab('dkulak',this)">📦 Data Kulak</button>
+        <button class="filter-btn" onclick="switchDataTab('djual',this)">🛒 Data Jual</button>
+        <button class="filter-btn" onclick="switchDataTab('dtransfer',this)">🚚 Data Transfer</button>
+        <button class="filter-btn" onclick="switchDataTab('dreturn',this)">↩️ Data Return Agen</button>
+      </div>
+
+      <!-- Data Kulak -->
+      <div id="sub-dkulak">
+        <div class="filter-bar">
+          <button class="filter-btn active" onclick="filterData('kulak','semua',this)">Semua</button>
+          <button class="filter-btn" onclick="filterData('kulak','7',this)">7 Hari</button>
+          <button class="filter-btn" onclick="filterData('kulak','30',this)">30 Hari</button>
+          <div class="filter-dates">
+            <input type="date" id="kulakDateFrom"> s/d <input type="date" id="kulakDateTo">
+            <button class="filter-btn" onclick="filterData('kulak','custom',this)">Cari</button>
+          </div>
+          <button class="btn-green" onclick="exportExcel('kulak')">⬇ Export Excel</button>
+        </div>
+        <div class="card" style="margin-bottom:8px;padding:12px 16px;background:#fff8e1">
+          <span style="font-size:.85rem">Total: <b id="kulakSumQty">—</b> kg | Modal: <b id="kulakSumModal">—</b></span>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Tanggal</th><th>Qty (kg)</th><th>Harga Beli</th><th>Subtotal</th><th>Catatan</th><th>Aksi</th></tr></thead>
+            <tbody id="kulakBody"><tr><td colspan="6" class="loading-row"><span class="spinner"></span></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Data Jual (hanya jual biasa, bukan transfer) -->
+      <div id="sub-djual" style="display:none">
+        <div class="filter-bar">
+          <button class="filter-btn active" onclick="filterData('jual','semua',this)">Semua</button>
+          <button class="filter-btn" onclick="filterData('jual','7',this)">7 Hari</button>
+          <button class="filter-btn" onclick="filterData('jual','30',this)">30 Hari</button>
+          <div class="filter-dates">
+            <input type="date" id="jualDateFrom"> s/d <input type="date" id="jualDateTo">
+            <button class="filter-btn" onclick="filterData('jual','custom',this)">Cari</button>
+          </div>
+          <button class="btn-green" onclick="exportExcel('jual')">⬇ Export Excel</button>
+        </div>
+        <div class="card" style="margin-bottom:8px;padding:12px 16px;background:#e8faf0">
+          <span style="font-size:.85rem">Total: <b id="jualSumQty">—</b> kg | Omzet: <b id="jualSumOmzet">—</b></span>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Tanggal</th><th>Qty (kg)</th><th>Harga Jual</th><th>Subtotal</th><th>Catatan</th><th>Aksi</th></tr></thead>
+            <tbody id="jualBody"><tr><td colspan="6" class="loading-row"><span class="spinner"></span></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Data Transfer ke Agen -->
+      <div id="sub-dtransfer" style="display:none">
+        <div class="filter-bar">
+          <button class="filter-btn active" onclick="filterData('transfer','semua',this)">Semua</button>
+          <button class="filter-btn" onclick="filterData('transfer','7',this)">7 Hari</button>
+          <button class="filter-btn" onclick="filterData('transfer','30',this)">30 Hari</button>
+          <div class="filter-dates">
+            <input type="date" id="transferDateFrom"> s/d <input type="date" id="transferDateTo">
+            <button class="filter-btn" onclick="filterData('transfer','custom',this)">Cari</button>
+          </div>
+          <button class="btn-green" onclick="exportExcel('transfer')">⬇ Export Excel</button>
+        </div>
+        <div class="card" style="margin-bottom:8px;padding:12px 16px;background:#eef3ff">
+          <span style="font-size:.85rem">Total Transfer: <b id="transferSumQty">—</b> kg | Total: <b id="transferSumTotal">—</b></span>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Tanggal</th><th>Agen</th><th>Qty (kg)</th><th>Harga Transfer</th><th>Subtotal</th><th>Catatan</th><th>Aksi</th></tr></thead>
+            <tbody id="transferBody"><tr><td colspan="7" class="loading-row"><span class="spinner"></span></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Data Return Agen -->
+      <div id="sub-dreturn" style="display:none">
+        <div class="card" style="margin-bottom:8px;padding:12px 16px;background:#fef0ee">
+          <span style="font-size:.85rem">Total Return: <b id="returnSumQty">—</b> kg</span>
+        </div>
+        <div id="returnWarning" style="display:none;background:#fff3cd;border-left:3px solid #ffc107;border-radius:10px;padding:10px 14px;font-size:.82rem;color:#856404;margin-bottom:10px;font-weight:600"></div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Tanggal</th><th>Agen</th><th>Qty (kg)</th><th>Harga Return</th><th>Subtotal</th><th>Catatan</th></tr></thead>
+            <tbody id="returnBody"><tr><td colspan="6" class="loading-row"><span class="spinner"></span></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== GRAFIK ===== -->
+    <div class="tab-panel" id="tab-grafik">
+      <div class="filter-bar" style="margin-bottom:20px">
+        <button class="filter-btn active" id="gfBtn-semua" onclick="setGrafikFilter('semua',this)">Semua</button>
+        <button class="filter-btn" id="gfBtn-7" onclick="setGrafikFilter('7',this)">7 Hari</button>
+        <button class="filter-btn" id="gfBtn-30" onclick="setGrafikFilter('30',this)">30 Hari</button>
+        <div class="filter-dates">
+          <input type="date" id="grafikDateFrom"> s/d <input type="date" id="grafikDateTo">
+          <button class="filter-btn" onclick="setGrafikFilter('custom',this)">Cari</button>
+        </div>
+      </div>
+      <div class="chart-wrap">
+        <div class="section-hd">📈 Grafik Harga (Kulak vs Jual)</div>
+        <canvas id="chartHarga"></canvas>
+      </div>
+      <div class="chart-wrap">
+        <div class="section-hd">📉 Grafik Margin & Moving Average</div>
+        <canvas id="chartMargin"></canvas>
+      </div>
+
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <div class="section-hd" style="margin-bottom:0">📋 Tabel Stok & Penjualan Harian</div>
+        <button class="btn-green" onclick="exportHarian()">⬇ Export Excel</button>
+      </div>
+      <div class="tbl-wrap" style="margin-bottom:24px">
+        <table>
+          <thead><tr><th>Tgl</th><th>Masuk (kg)</th><th>Beli</th><th>Keluar (kg)</th><th>Jual</th><th>Stok Akhir</th><th>Average</th><th>Margin/kg</th><th>Total Profit</th></tr></thead>
+          <tbody id="tblHarian"><tr><td colspan="9" class="loading-row"><span class="spinner"></span></td></tr></tbody>
+        </table>
+      </div>
+
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <div class="section-hd" style="margin-bottom:0">📦 Tabel Master Batch FIFO</div>
+        <button class="btn-green" onclick="exportBatch()">⬇ Export Excel</button>
+      </div>
+      <div class="tbl-wrap" style="margin-bottom:24px">
+        <table>
+          <thead><tr><th>Tgl Batch</th><th>Masuk (kg)</th><th>Harga Kulak</th><th>Terjual</th><th>Sisa (kg)</th><th>Total Profit</th><th>Status</th></tr></thead>
+          <tbody id="tblBatch"><tr><td colspan="7" class="loading-row"><span class="spinner"></span></td></tr></tbody>
+        </table>
+      </div>
+
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <div class="section-hd" style="margin-bottom:0">📝 Tabel Transaksi Penjualan FIFO</div>
+        <button class="btn-green" onclick="exportFifo()">⬇ Export Excel</button>
+      </div>
+      <div class="tbl-wrap" style="margin-bottom:8px">
+        <table>
+          <thead><tr><th>Tgl Jual</th><th>Tgl Batch</th><th>Qty (kg)</th><th>Harga Jual</th><th>Harga Kulak</th><th>Margin/kg</th><th>Profit</th></tr></thead>
+          <tbody id="tblFifo"><tr><td colspan="7" class="loading-row"><span class="spinner"></span></td></tr></tbody>
+        </table>
+      </div>
+      <div class="card" style="background:#e8faf0;padding:12px 16px;font-size:.83rem">
+        ✅ Validasi FIFO: <b id="fifoValidasi">Memuat...</b>
+      </div>
+    </div>
+
+</div><!-- /wrap -->
+
+<!-- MODAL TAMBAH/EDIT AGEN -->
+<div class="modal-overlay" id="modalAgen">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modalAgen')">✕</button>
+    <h3 id="modalAgenTitle">➕ Tambah Agen</h3>
+    <input type="hidden" id="agenEditId">
+    <div class="form-grid">
+      <div class="form-group full"><label>Nama Agen</label><input type="text" id="agenNama" placeholder="Nama lengkap"></div>
+      <div class="form-group full"><label>Alamat</label><input type="text" id="agenAlamat" placeholder="Alamat lengkap"></div>
+      <div class="form-group"><label>No. WhatsApp</label><input type="text" id="agenWA" placeholder="08xxxxxxxxxx"></div>
+      <div class="form-group"><label>Email (untuk login)</label><input type="email" id="agenEmail" placeholder="email@example.com"></div>
+      <div class="form-group full" id="agenPassWrap"><label>Password</label><input type="password" id="agenPass" placeholder="Min. 6 karakter"></div>
+      <div class="form-group full">
+        <label>Role</label>
+        <select id="agenRole">
+          <option value="agen">Agen</option>
+          <option value="admin">Admin</option>
+          <option value="superuser">Superuser</option>
+        </select>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:16px">
+      <button class="btn-primary" onclick="saveAgen()">💾 Simpan</button>
+      <button class="btn-secondary" onclick="closeModal('modalAgen')">Batal</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EDIT TRANSAKSI -->
+<div class="modal-overlay" id="modalEditTx">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modalEditTx')">✕</button>
+    <h3>✏️ Edit Transaksi</h3>
+    <input type="hidden" id="editTxId">
+    <input type="hidden" id="editTxType">
+    <div class="form-grid">
+      <div class="form-group"><label>Tanggal</label><input type="date" id="editTxTgl"></div>
+      <div class="form-group"><label>Qty (kg)</label><input type="number" id="editTxQty" min="0"></div>
+      <div class="form-group"><label>Harga (Rp/kg)</label><input type="number" id="editTxHarga" min="0"></div>
+      <div class="form-group"><label>Catatan</label><input type="text" id="editTxNote"></div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:16px">
+      <button class="btn-primary" onclick="saveEditTx()">💾 Simpan</button>
+      <button class="btn-secondary" onclick="closeModal('modalEditTx')">Batal</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL KONFIRMASI HAPUS -->
+<div class="modal-overlay" id="modalKonfirmHapus">
+  <div class="modal" style="max-width:360px;text-align:center">
+    <div style="font-size:2rem;margin-bottom:12px">🗑️</div>
+    <h3 style="margin-bottom:8px" id="modalKonfirmTitle">Hapus Transaksi?</h3>
+    <p style="font-size:.85rem;color:var(--ink3);margin-bottom:20px" id="modalKonfirmDesc">Data yang dihapus tidak dapat dikembalikan.</p>
+    <div style="display:flex;gap:10px;justify-content:center">
+      <button class="btn-red" id="modalKonfirmYa">Ya, Hapus</button>
+      <button class="btn-secondary" onclick="closeModal('modalKonfirmHapus')">Batal</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, collection, getDocs, getDoc, setDoc, addDoc, updateDoc, deleteDoc, doc, query, orderBy, limit, where, serverTimestamp, Timestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig={apiKey:"AIzaSyAkn48CNd2-q5NDirJNIr4VOb3QHrssFRA",authDomain:"ndokkmu-62880.firebaseapp.com",projectId:"ndokkmu-62880",storageBucket:"ndokkmu-62880.firebasestorage.app",messagingSenderId:"456250896637",appId:"1:456250896637:web:cf4b2adfdb2254b32d8e94"};
+const app=initializeApp(firebaseConfig);
+const auth=getAuth(app);
+const db=getFirestore(app);
+// Secondary app khusus untuk createUserWithEmailAndPassword
+// agar auth state admin tidak terganggu saat membuat akun baru
+const appSecondary=initializeApp(firebaseConfig,'secondary');
+const authSecondary=getAuth(appSecondary);
+
+// ---- Helpers ----
+const rp=n=>n||n===0?'Rp '+Number(n).toLocaleString('id-ID'):'—';
+const fmt=n=>n||n===0?Number(n).toLocaleString('id-ID'):'—';
+function showToast(msg,type='success'){const t=document.getElementById('toast');t.textContent=msg;t.className='toast show '+type;clearTimeout(t._t);t._t=setTimeout(()=>t.className='toast',3000)}
+function isoDate(d){if(!d)return'';if(typeof d==='string')return d.slice(0,10);if(d.toDate)return d.toDate().toISOString().slice(0,10);return''}
+function parseDateStr(s){if(!s)return null;const[y,m,dd]=s.split('-');return new Date(+y,+m-1,+dd)}
+function today(){return new Date().toISOString().slice(0,10)}
+
+// ---- Auth Guard ----
+let currentUser=null, currentRole=null;
+onAuthStateChanged(auth,async user=>{
+  if(!user){window.location.href='index.html';return}
+  currentUser=user;
+  const ud=await getDoc(doc(db,'users',user.uid));
+  if(!ud.exists()||!['admin','superuser'].includes(ud.data().role)){await signOut(auth);window.location.href='index.html';return}
+  currentRole=ud.data().role;
+  document.getElementById('adminNameTop').textContent=ud.data().nama||user.email;
+  // Load profil
+  document.getElementById('profNama').value=ud.data().nama||'';
+  document.getElementById('profLokasi').value=ud.data().lokasi||'';
+  document.getElementById('profWA').value=ud.data().whatsapp||'';
+  document.getElementById('profHargaJual').value=ud.data().harga_jual||'';
+  loadAll();
+});
+
+// ---- Clock (removed topbar) ----
+
+// ---- Load All ----
+let _kulak=[],_jual=[],_transfer=[],_return=[],_users=[],_batches=[];
+async function loadAll(){
+  await loadUsers();
+  await loadKulak();
+  await loadJual();
+  await loadTransfer();
+  await loadReturn();
+  computeFIFO();
+  buildDashboard();
+  buildGrafik();
+  populateTransferAgen();
+  setDefaultDates();
+  filterData('kulak','semua',document.querySelector('#sub-dkulak .filter-btn'));
+  filterData('jual','semua',document.querySelector('#sub-djual .filter-btn'));
+  filterData('transfer','semua',document.querySelector('#sub-dtransfer .filter-btn'));
+  renderReturnTable();
+}
+
+async function loadUsers(){
+  const snap=await getDocs(collection(db,'users'));
+  _users=[];
+  snap.forEach(d=>_users.push({id:d.id,...d.data()}));
+  renderAkunTable();
+}
+async function loadKulak(){
+  const q=query(collection(db,'transaksi_kulak'),orderBy('tanggal','asc'));
+  const snap=await getDocs(q);
+  _kulak=snap.docs.map(d=>({id:d.id,...d.data()}));
+}
+async function loadJual(){
+  const q=query(collection(db,'transaksi_jual'),orderBy('tanggal','asc'));
+  const snap=await getDocs(q);
+  _jual=snap.docs.map(d=>({id:d.id,...d.data()}));
+}
+async function loadTransfer(){
+  const q=query(collection(db,'transaksi_transfer'),orderBy('tanggal','asc'));
+  const snap=await getDocs(q);
+  _transfer=snap.docs.map(d=>({id:d.id,...d.data()}));
+}
+async function loadReturn(){
+  const q=query(collection(db,'transaksi_return'),orderBy('tanggal','asc'));
+  const snap=await getDocs(q);
+  _return=snap.docs.map(d=>({id:d.id,...d.data()}));
+}
+
+function setDefaultDates(){
+  const t=today();
+  document.getElementById('kulakTgl').value=t;
+  document.getElementById('jualTgl').value=t;
+  document.getElementById('transferTgl').value=t;
+  // Kulak note
+  if(_kulak.length>0){
+    const last=_kulak[_kulak.length-1];
+    document.getElementById('noteKulakTgl').textContent=isoDate(last.tanggal);
+    document.getElementById('noteKulakHarga').textContent=rp(last.harga_beli);
+  }
+  // Jual note
+  if(_jual.length>0){
+    const lastJ=_jual[_jual.length-1];
+    document.getElementById('noteJualTgl').textContent=isoDate(lastJ.tanggal);
+    document.getElementById('noteJualHjual').textContent=rp(lastJ.harga_jual);
+    document.getElementById('noteHjual').textContent=rp(lastJ.harga_jual);
+  }
+  if(_kulak.length>0){
+    const lastK=_kulak[_kulak.length-1];
+    document.getElementById('noteJualHkulak').textContent=rp(lastK.harga_beli);
+  }
+  // Transfer note
+  if(_transfer.length>0){
+    const lastT=_transfer[_transfer.length-1];
+    document.getElementById('noteTransferTgl').textContent=isoDate(lastT.tanggal);
+    document.getElementById('noteTransferHarga').textContent=rp(lastT.harga_jual);
+  }
+  // Stock in notes
+  const stok=window._stats?window._stats.totalStok:0;
+  document.getElementById('noteStok')&&(document.getElementById('noteStok').textContent=fmt(stok));
+  document.getElementById('noteJualStok').textContent=fmt(stok);
+  document.getElementById('noteTransferStok').textContent=fmt(stok);
+}
+
+// ---- FIFO Compute ----
+function computeFIFO(){
+  // Build batches dari kulak asli
+  const kulakBatches=_kulak.map(k=>({
+    tgl:isoDate(k.tanggal),
+    masuk:Number(k.qty)||0,
+    harga:Number(k.harga_beli)||0,
+    terjual:0,sisa:Number(k.qty)||0,profit:0,
+    id:k.id,type:'kulak'
+  }));
+  // Return agen: masuk kembali ke stok admin dengan harga_return (= harga FIFO agen saat retur)
+  // harga_return di transaksi_return adalah harga yang admin berikan ke agen saat transfer (FIFO agen)
+  const returnBatches=_return.map(r=>({
+    tgl:isoDate(r.tanggal),
+    masuk:Number(r.qty)||0,
+    harga:Number(r.harga_return)||0,
+    terjual:0,sisa:Number(r.qty)||0,profit:0,
+    id:r.id,type:'return',
+    agen_nama:r.agen_nama||''
+  }));
+  // Gabung dan sort berdasarkan tanggal (FIFO: terlama duluan)
+  _batches=[...kulakBatches,...returnBatches].sort((a,b)=>a.tgl.localeCompare(b.tgl));
+
+  // Process jual dan transfer sebagai pengurang stok admin
+  const sells=[..._jual.map(j=>({
+    tgl:isoDate(j.tanggal),qty:Number(j.qty)||0,
+    harga:Number(j.harga_jual)||0,type:'jual',id:j.id,catatan:j.catatan||''
+  }))].sort((a,b)=>a.tgl.localeCompare(b.tgl));
+
+  window._fifoDetail=[];
+  for(const sell of sells){
+    let rem=sell.qty;
+    for(const batch of _batches){
+      if(rem<=0)break;
+      if(batch.sisa<=0)continue;
+      const used=Math.min(batch.sisa,rem);
+      const profit=used*(sell.harga-batch.harga);
+      batch.terjual+=used;batch.sisa-=used;batch.profit+=profit;rem-=used;
+      window._fifoDetail.push({sell_id:sell.id,tgl_jual:sell.tgl,tgl_batch:batch.tgl,qty:used,harga_jual:sell.harga,harga_kulak:batch.harga,margin:sell.harga-batch.harga,profit});
+    }
+  }
+
+  const totalStok=_batches.reduce((s,b)=>s+b.sisa,0);
+  const nilaiStok=_batches.reduce((s,b)=>s+b.sisa*b.harga,0);
+  const totalModal=_kulak.reduce((s,k)=>s+Number(k.qty)*Number(k.harga_beli),0);
+  // Omzet: hanya dari transaksi jual yang bukan transfer (is_transfer!=true)
+  const jualBiasa=_jual.filter(j=>!j.is_transfer);
+  const totalOmzetJual=jualBiasa.reduce((s,j)=>s+Number(j.qty)*Number(j.harga_jual),0);
+  const totalOmzetTransfer=_transfer.reduce((s,t)=>s+Number(t.qty)*Number(t.harga_jual),0);
+  const totalOmzet=totalOmzetJual+totalOmzetTransfer;
+  // Profit hanya dari jual biasa (FIFO), transfer tercatat sebagai pengurang stok bukan profit langsung
+  const totalProfit=window._fifoDetail
+    .filter(f=>jualBiasa.some(j=>j.id===f.sell_id))
+    .reduce((s,f)=>s+f.profit,0);
+  // Moving average hanya dari kulak asli (bukan return)
+  const maSum=kulakBatches.reduce((s,b)=>s+b.masuk*b.harga,0);
+  const maQty=kulakBatches.reduce((s,b)=>s+b.masuk,0);
+  const ma=maQty>0?maSum/maQty:0;
+
+  window._stats={totalStok,nilaiStok,totalModal,totalOmzet,totalOmzetJual,totalOmzetTransfer,totalProfit,ma};
+  setDoc(doc(db,'settings','admin'),{stok_kg:totalStok,nilai_stok:nilaiStok,moving_average:ma},{merge:true});
+}
+
+// ---- Dashboard ----
+function buildDashboard(){
+  const s=window._stats;
+  document.getElementById('d-stok').textContent=fmt(s.totalStok)+' kg';
+  document.getElementById('d-nilai').textContent=rp(s.nilaiStok);
+  document.getElementById('d-ma').textContent=rp(Math.round(s.ma));
+  document.getElementById('d-modal').textContent=rp(s.totalModal);
+  document.getElementById('d-omzet').textContent=rp(s.totalOmzet);
+  document.getElementById('d-profit').textContent=rp(Math.round(s.totalProfit));
+
+  // Harga jual terakhir
+  if(_jual.length>0){
+    const hj=_jual[_jual.length-1].harga_jual;
+    document.getElementById('d-hjual').textContent=rp(hj);
+  }
+
+  // Resume 7 transaksi terakhir
+  const allEvents=[];
+  for(const k of _kulak) allEvents.push({tgl:isoDate(k.tanggal),type:'kulak',qty:Number(k.qty),harga:Number(k.harga_beli),id:k.id});
+  for(const j of _jual) allEvents.push({tgl:isoDate(j.tanggal),type:'jual',qty:Number(j.qty),harga:Number(j.harga_jual),id:j.id,catatan:j.catatan||''});
+  allEvents.sort((a,b)=>a.tgl.localeCompare(b.tgl)||(a.id<b.id?-1:1));
+  // Bug #6 fix: hitung running stok per event untuk kolom Stok Akhir
+  const runBatchesResume=[];
+  for(const ev of allEvents){
+    if(ev.type==='kulak'){
+      runBatchesResume.push({sisa:ev.qty});
+    } else {
+      let rem=ev.qty;
+      for(const b of runBatchesResume){if(rem<=0)break;const used=Math.min(b.sisa,rem);b.sisa-=used;rem-=used;}
+    }
+    ev._stokAkhir=runBatchesResume.reduce((s,b)=>s+b.sisa,0);
+  }
+  const last7=[...allEvents].sort((a,b)=>b.tgl.localeCompare(a.tgl)||(b.id>a.id?1:-1)).slice(0,7).reverse();
+  let html='';
+  for(const ev of last7){
+    const profit=ev.type==='jual'?window._fifoDetail.filter(x=>x.sell_id===ev.id).reduce((s,x)=>s+x.profit,0):0;
+    if(ev.type==='kulak'){
+      html+=`<tr><td>${ev.tgl}</td><td>${fmt(ev.qty)}</td><td>${rp(ev.harga)}</td><td>—</td><td>—</td><td>${fmt(Math.round(ev._stokAkhir))}</td><td>—</td></tr>`;
+    } else {
+      html+=`<tr><td>${ev.tgl}</td><td>—</td><td>—</td><td>${fmt(ev.qty)}</td><td>${rp(ev.harga)}</td><td>${fmt(Math.round(ev._stokAkhir))}</td><td style="font-weight:600">${ev.type==='jual'?rp(Math.round(profit)):'—'}</td></tr>`;
+    }
+  }
+  document.getElementById('resumeBody').innerHTML=html||'<tr><td colspan="7" style="text-align:center;color:#aaa">Tidak ada data</td></tr>';
+
+  // Ringkasan per agen
+  const agents=_users.filter(u=>u.role==='agen');
+  let agHtml='';
+  for(const ag of agents){
+    const txs=_transfer.filter(t=>t.agen_id===ag.id);
+    const juals=_jual.filter(j=>j.agen_id===ag.id); // jika ada
+    const totalMasuk=txs.reduce((s,t)=>s+Number(t.qty),0);
+    const totalHarga=txs.length>0?rp(txs[txs.length-1].harga_jual):'—';
+    agHtml+=`<div class="agen-sum-card">
+      <div class="agen-sum-name">👤 ${ag.nama||'-'}</div>
+      <div class="agen-sum-row"><span>Total Transfer</span><span>${fmt(totalMasuk)} kg</span></div>
+      <div class="agen-sum-row"><span>Harga Terakhir</span><span>${totalHarga}</span></div>
+      <div class="agen-sum-row"><span>Transaksi</span><span>${txs.length}x</span></div>
+    </div>`;
+  }
+  document.getElementById('agenSummaryGrid').innerHTML=agHtml||'<div style="color:#aaa;padding:16px">Belum ada agen.</div>';
+}
+
+// ---- Akun Table ----
+function renderAkunTable(){
+  let html='';
+  for(const u of _users){
+    html+=`<tr>
+      <td>${u.nama||'-'}</td>
+      <td><span class="badge ${u.role==='admin'||u.role==='superuser'?'badge-yellow':'badge-green'}">${u.role||'-'}</span></td>
+      <td>${u.alamat||'-'}</td>
+      <td>${u.whatsapp?`<a href="https://wa.me/62${u.whatsapp.replace(/^0/,'')}" target="_blank" style="color:var(--green)">${u.whatsapp}</a>`:'-'}</td>
+      <td>${u.email||'-'}</td>
+      <td>
+        <button class="btn-icon" title="Edit" onclick="editAgen('${u.id}')">✏️</button>
+        <button class="btn-icon" title="Hapus" onclick="hapusAgen('${u.id}')">🗑️</button>
+      </td>
+    </tr>`;
+  }
+  document.getElementById('akunBody').innerHTML=html||'<tr><td colspan="6" style="text-align:center;color:#aaa">Tidak ada user</td></tr>';
+}
+
+// ---- Agen CRUD ----
+window.openModalAgen=function(){
+  document.getElementById('agenEditId').value='';
+  document.getElementById('agenNama').value='';
+  document.getElementById('agenAlamat').value='';
+  document.getElementById('agenWA').value='';
+  document.getElementById('agenEmail').value='';
+  document.getElementById('agenPass').value='';
+  document.getElementById('agenRole').value='agen';
+  document.getElementById('agenPassWrap').style.display='';
+  document.getElementById('modalAgenTitle').textContent='➕ Tambah Agen';
+  document.getElementById('modalAgen').classList.add('active');
+}
+window.editAgen=function(id){
+  const u=_users.find(x=>x.id===id);if(!u)return;
+  document.getElementById('agenEditId').value=id;
+  document.getElementById('agenNama').value=u.nama||'';
+  document.getElementById('agenAlamat').value=u.alamat||'';
+  document.getElementById('agenWA').value=u.whatsapp||'';
+  document.getElementById('agenEmail').value=u.email||'';
+  document.getElementById('agenPass').value='';
+  document.getElementById('agenRole').value=u.role||'agen';
+  document.getElementById('agenPassWrap').style.display='none';
+  document.getElementById('modalAgenTitle').textContent='✏️ Edit Agen';
+  document.getElementById('modalAgen').classList.add('active');
+}
+window.saveAgen=async function(){
+  const id=document.getElementById('agenEditId').value;
+  const nama=document.getElementById('agenNama').value.trim();
+  const alamat=document.getElementById('agenAlamat').value.trim();
+  const wa=document.getElementById('agenWA').value.trim();
+  const email=document.getElementById('agenEmail').value.trim();
+  const pass=document.getElementById('agenPass').value;
+  const role=document.getElementById('agenRole').value;
+  if(!nama||!email){showToast('Nama dan email wajib diisi','error');return}
+  try{
+    if(!id){
+      if(!pass||pass.length<6){showToast('Password min 6 karakter','error');return}
+      const cred=await createUserWithEmailAndPassword(authSecondary,email,pass);
+      await setDoc(doc(db,'users',cred.user.uid),{nama,alamat,whatsapp:wa,email,role,created:serverTimestamp()});
+      await signOut(authSecondary);
+    }else{
+      // Bug #10 fix: update Firestore; email di Firebase Auth tidak bisa diubah dari client admin
+      // Tampilkan peringatan jika email berubah
+      const existingUser=_users.find(u=>u.id===id);
+      if(existingUser&&existingUser.email&&existingUser.email!==email){
+        showToast('⚠️ Email login tidak bisa diubah dari sini (hanya data profil yang diperbarui).','error');
+        // Tetap update nama/alamat/wa/role, tapi email di Firestore tetap email lama agar sinkron dengan Auth
+        await updateDoc(doc(db,'users',id),{nama,alamat,whatsapp:wa,role});
+      } else {
+        await updateDoc(doc(db,'users',id),{nama,alamat,whatsapp:wa,email,role});
+      }
+    }
+    showToast('Berhasil disimpan ✅');
+    closeModal('modalAgen');
+    // Pastikan masih login sebagai admin sebelum reload
+    if(auth.currentUser&&currentUser&&auth.currentUser.uid===currentUser.uid){
+      await loadUsers();
+    } else {
+      // Jika session berubah (seharusnya tidak terjadi dengan secondary app), redirect ke login
+      window.location.href='index.html';
+    }
+  }catch(e){showToast('Error: '+e.message,'error')}
+}
+window.hapusAgen=function(id){
+  const modal=document.getElementById('modalKonfirmHapus');
+  document.getElementById('modalKonfirmTitle').textContent='Hapus User?';
+  // Bug #11 fix: cek apakah ada transaksi terkait agen ini
+  const hasTransfer=_transfer.some(t=>t.agen_id===id);
+  document.getElementById('modalKonfirmDesc').textContent=
+    hasTransfer
+      ? '⚠️ Agen ini memiliki data transfer. Data user akan dihapus tapi data transaksi tetap ada. Lanjutkan?'
+      : 'Data user yang dihapus tidak dapat dikembalikan.';
+  modal.classList.add('active');
+  const btn=document.getElementById('modalKonfirmYa');
+  const newBtn=btn.cloneNode(true);
+  btn.parentNode.replaceChild(newBtn,btn);
+  newBtn.onclick=async function(){
+    closeModal('modalKonfirmHapus');
+    try{
+      await deleteDoc(doc(db,'users',id));
+      // Bug #11 fix: hapus juga settings agen agar tidak ada orphan
+      await deleteDoc(doc(db,'settings',id)).catch(()=>{});
+      showToast('User dihapus ✅');
+      await loadUsers();
+    }catch(e){showToast('Error: '+e.message,'error')}
+  }
+}
+window.saveProfil=async function(){
+  if(!currentUser)return;
+  const nama=document.getElementById('profNama').value.trim();
+  const lokasi=document.getElementById('profLokasi').value.trim();
+  const wa=document.getElementById('profWA').value.trim();
+  const hargaJual=parseFloat(document.getElementById('profHargaJual').value)||0;
+  await updateDoc(doc(db,'users',currentUser.uid),{nama,lokasi,whatsapp:wa,harga_jual:hargaJual});
+  await setDoc(doc(db,'settings','admin'),{harga_jual:hargaJual},{merge:true});
+  showToast('Profil disimpan ✅');
+}
+
+// ---- Transaksi ----
+function populateTransferAgen(){
+  const sel=document.getElementById('transferAgen');
+  sel.innerHTML='<option value="">-- Pilih Agen --</option>';
+  _users.filter(u=>u.role==='agen').forEach(u=>{
+    const o=document.createElement('option');o.value=u.id;o.textContent=u.nama;sel.appendChild(o);
+  });
+  // Auto-fill catatan on change
+  sel.onchange=function(){
+    const ag=_users.find(x=>x.id===this.value);
+    document.getElementById('transferNote').value=ag?`Transfer ke ${ag.nama}`:'';
+  }
+}
+window.simpanKulak=async function(){
+  const tgl=document.getElementById('kulakTgl').value;
+  const qty=parseFloat(document.getElementById('kulakQty').value);
+  const harga=parseFloat(document.getElementById('kulakHarga').value);
+  const note=document.getElementById('kulakNote').value.trim();
+  if(!tgl||!qty||!harga){showToast('Tanggal, qty, dan harga wajib diisi','error');return}
+  try{
+    await addDoc(collection(db,'transaksi_kulak'),{tanggal:tgl,qty,harga_beli:harga,catatan:note,created:serverTimestamp()});
+    showToast('Data kulak disimpan ✅');
+    document.getElementById('kulakQty').value='';
+    document.getElementById('kulakNote').value='';
+    await loadKulak();computeFIFO();buildDashboard();buildGrafik();
+    filterData('kulak','semua',document.querySelector('#sub-dkulak .filter-btn'));
+    setDefaultDates();
+  }catch(e){showToast('Error: '+e.message,'error')}
+}
+window.simpanJual=async function(){
+  const tgl=document.getElementById('jualTgl').value;
+  const qty=parseFloat(document.getElementById('jualQty').value);
+  const harga=parseFloat(document.getElementById('jualHarga').value);
+  const note=document.getElementById('jualNote').value.trim();
+  if(!tgl||!qty||!harga){showToast('Tanggal, qty, dan harga wajib diisi','error');return}
+  const stok=window._stats?window._stats.totalStok:0;
+  if(qty>stok){showToast(`Qty melebihi stok! Stok tersedia: ${fmt(stok)} kg`,'error');return}
+  try{
+    await addDoc(collection(db,'transaksi_jual'),{tanggal:tgl,qty,harga_jual:harga,catatan:note,created:serverTimestamp()});
+    showToast('Data jual disimpan ✅');
+    document.getElementById('jualQty').value='';
+    document.getElementById('jualNote').value='';
+    await loadJual();computeFIFO();buildDashboard();buildGrafik();
+    filterData('jual','semua',document.querySelector('#sub-djual .filter-btn'));
+    setDefaultDates();
+  }catch(e){showToast('Error: '+e.message,'error')}
+}
+window.simpanTransfer=async function(){
+  const agenId=document.getElementById('transferAgen').value;
+  const tgl=document.getElementById('transferTgl').value;
+  const qty=parseFloat(document.getElementById('transferQty').value);
+  const harga=parseFloat(document.getElementById('transferHarga').value);
+  const note=document.getElementById('transferNote').value.trim();
+  if(!agenId||!tgl||!qty||!harga){showToast('Semua field wajib diisi','error');return}
+  const stok=window._stats?window._stats.totalStok:0;
+  if(qty>stok){showToast(`Qty melebihi stok! Stok tersedia: ${fmt(stok)} kg`,'error');return}
+  const ag=_users.find(u=>u.id===agenId);
+  try{
+    const transferRef=await addDoc(collection(db,'transaksi_transfer'),{
+      agen_id:agenId,agen_nama:ag?.nama||'',
+      tanggal:tgl,qty,
+      harga_jual:harga,
+      catatan:note||`Transfer ke ${ag?.nama||''}`,
+      created:serverTimestamp()
+    });
+    const jualRef=await addDoc(collection(db,'transaksi_jual'),{
+      tanggal:tgl,qty,harga_jual:harga,
+      catatan:`Transfer ke ${ag?.nama||''}`,
+      agen_id:agenId,
+      is_transfer:true,
+      transfer_id:transferRef.id,
+      created:serverTimestamp()
+    });
+    await updateDoc(transferRef,{jual_id:jualRef.id});
+    // Bug #5 fix: recompute stok agen dari source of truth bukan prevStok+qty
+    const {stokKg,nilaiStok}=await recomputeAgenStok(agenId);
+    await setDoc(doc(db,'settings',agenId),{
+      stok_kg:stokKg,
+      nilai_stok:nilaiStok,
+      last_transfer_tgl:tgl,
+      last_transfer_harga:harga,
+      updated:serverTimestamp()
+    },{merge:true});
+    showToast(`Transfer ke ${ag?.nama||'agen'} berhasil ✅`);
+    document.getElementById('transferQty').value='';
+    document.getElementById('transferHarga').value='';
+    await loadJual();await loadTransfer();computeFIFO();buildDashboard();buildGrafik();
+    setDefaultDates();
+  }catch(e){showToast('Error: '+e.message,'error')}
+}
+
+// ---- Data Filter ----
+let _kulakFilter='semua', _jualFilter='semua';
+window.filterData=function(type,range,btn){
+  if(btn){
+    const par=btn.closest('.filter-bar');
+    par.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+  let data;
+  if(type==='kulak'){
+    const kulakRows=_kulak.map(k=>({id:k.id,tanggal:k.tanggal,qty:k.qty,harga_beli:k.harga_beli,catatan:k.catatan||'',type:'kulak'}));
+    const returnRows=_return.map(r=>({id:r.id,tanggal:r.tanggal,qty:r.qty,harga_beli:r.harga_return,catatan:`[Retur] ${r.agen_nama||'Agen'} — ${r.catatan||''}`.trim(),type:'return'}));
+    data=[...kulakRows,...returnRows];
+  } else if(type==='jual'){
+    // Hanya jual yang bukan transfer
+    data=_jual.filter(j=>!j.is_transfer);
+  } else if(type==='transfer'){
+    data=[..._transfer];
+  } else {
+    data=[];
+  }
+  const now=new Date();
+  if(range==='7'){const d=new Date(now);d.setDate(d.getDate()-6);data=data.filter(x=>isoDate(x.tanggal)>=d.toISOString().slice(0,10))}
+  else if(range==='30'){const d=new Date(now);d.setDate(d.getDate()-29);data=data.filter(x=>isoDate(x.tanggal)>=d.toISOString().slice(0,10))}
+  else if(range==='custom'){
+    const fromId=type==='kulak'?'kulakDateFrom':type==='jual'?'jualDateFrom':'transferDateFrom';
+    const toId=type==='kulak'?'kulakDateTo':type==='jual'?'jualDateTo':'transferDateTo';
+    const from=document.getElementById(fromId)?.value;
+    const to=document.getElementById(toId)?.value;
+    if(from)data=data.filter(x=>isoDate(x.tanggal)>=from);
+    if(to)data=data.filter(x=>isoDate(x.tanggal)<=to);
+  }
+  if(type==='kulak') renderKulakTable(data);
+  else if(type==='jual') renderJualTable(data);
+  else if(type==='transfer') renderTransferAdminTable(data);
+}
+
+function renderKulakTable(data){
+  // Sort terbaru di atas
+  const sorted=[...data].sort((a,b)=>isoDate(b.tanggal).localeCompare(isoDate(a.tanggal)));
+  const totalQty=data.reduce((s,k)=>s+Number(k.qty),0);
+  const totalModal=data.reduce((s,k)=>s+Number(k.qty)*Number(k.harga_beli),0);
+  document.getElementById('kulakSumQty').textContent=fmt(totalQty);
+  document.getElementById('kulakSumModal').textContent=rp(totalModal);
+  let html='';
+  sorted.forEach(k=>{
+    const isReturn=k.type==='return';
+    const rowStyle=isReturn?'background:#fff8f6;':'';
+    const badgeRetur=isReturn?'<span class="badge badge-yellow" style="margin-left:4px;font-size:.65rem">Retur</span>':'';
+    const aksiCol=isReturn
+      ? '<td>—</td>'
+      : `<td>
+          <button class="btn-icon" onclick="editTx('${k.id}','kulak')">✏️</button>
+          <button class="btn-icon" onclick="hapusTx('${k.id}','kulak')">🗑️</button>
+        </td>`;
+    html+=`<tr style="${rowStyle}">
+      <td>${isoDate(k.tanggal)}</td><td>${fmt(k.qty)}</td><td>${rp(k.harga_beli)}</td>
+      <td>${rp(k.qty*k.harga_beli)}</td>
+      <td>${k.catatan||'—'}${badgeRetur}</td>
+      ${aksiCol}</tr>`;
+  });
+  document.getElementById('kulakBody').innerHTML=html||'<tr><td colspan="6" style="text-align:center;color:#aaa">Tidak ada data</td></tr>';
+  window._kulakExport=sorted;
+}
+function renderJualTable(data){
+  // Hanya tampilkan jual yang bukan transfer
+  const jualBiasa=data.filter(j=>!j.is_transfer);
+  const totalQty=jualBiasa.reduce((s,j)=>s+Number(j.qty),0);
+  const totalOmzet=jualBiasa.reduce((s,j)=>s+Number(j.qty)*Number(j.harga_jual),0);
+  document.getElementById('jualSumQty').textContent=fmt(totalQty);
+  document.getElementById('jualSumOmzet').textContent=rp(totalOmzet);
+  let html='';
+  [...jualBiasa].reverse().forEach(j=>{
+    html+=`<tr>
+      <td>${isoDate(j.tanggal)}</td><td>${fmt(j.qty)}</td><td>${rp(j.harga_jual)}</td>
+      <td>${rp(j.qty*j.harga_jual)}</td><td>${j.catatan||'—'}</td>
+      <td>
+        <button class="btn-icon" onclick="editTx('${j.id}','jual')">✏️</button>
+        <button class="btn-icon" onclick="hapusTx('${j.id}','jual')">🗑️</button>
+      </td></tr>`;
+  });
+  document.getElementById('jualBody').innerHTML=html||'<tr><td colspan="6" style="text-align:center;color:#aaa">Tidak ada data</td></tr>';
+  window._jualExport=jualBiasa;
+}
+function renderTransferAdminTable(data){
+  const sorted=[...data].sort((a,b)=>isoDate(b.tanggal).localeCompare(isoDate(a.tanggal)));
+  const totalQty=data.reduce((s,t)=>s+Number(t.qty),0);
+  const totalTotal=data.reduce((s,t)=>s+Number(t.qty)*Number(t.harga_jual),0);
+  document.getElementById('transferSumQty').textContent=fmt(totalQty);
+  document.getElementById('transferSumTotal').textContent=rp(totalTotal);
+  let html='';
+  sorted.forEach(t=>{
+    html+=`<tr>
+      <td>${isoDate(t.tanggal)}</td><td>${t.agen_nama||'-'}</td>
+      <td>${fmt(t.qty)}</td><td>${rp(t.harga_jual)}</td>
+      <td>${rp(t.qty*t.harga_jual)}</td><td>${t.catatan||'—'}</td>
+      <td>
+        <button class="btn-icon" onclick="editTx('${t.id}','transfer')">✏️</button>
+        <button class="btn-icon" onclick="hapusTx('${t.id}','transfer')">🗑️</button>
+      </td></tr>`;
+  });
+  document.getElementById('transferBody').innerHTML=html||'<tr><td colspan="7" style="text-align:center;color:#aaa">Tidak ada data</td></tr>';
+  window._transferExport=data;
+}
+function renderReturnTable(){
+  const totalQty=_return.reduce((s,r)=>s+Number(r.qty),0);
+  document.getElementById('returnSumQty').textContent=fmt(totalQty);
+  // Validasi: untuk setiap agen, total retur tidak boleh > total transfer - total jual agen
+  const warnings=[];
+  const agenIds=[...new Set(_return.map(r=>r.agen_id).filter(Boolean))];
+  for(const agenId of agenIds){
+    const totalTransferAgen=_transfer.filter(t=>t.agen_id===agenId).reduce((s,t)=>s+Number(t.qty),0);
+    const totalReturAgen=_return.filter(r=>r.agen_id===agenId).reduce((s,r)=>s+Number(r.qty),0);
+    const agenNama=(_return.find(r=>r.agen_id===agenId)||{}).agen_nama||agenId;
+    if(totalReturAgen>totalTransferAgen){
+      warnings.push(`⚠️ Total retur agen ${agenNama} (${fmt(totalReturAgen)} kg) melebihi total transfer yang ada (${fmt(totalTransferAgen)} kg).`);
+    }
+  }
+  const warnEl=document.getElementById('returnWarning');
+  if(warnEl){
+    if(warnings.length>0){warnEl.style.display='';warnEl.innerHTML=warnings.join('<br>')}
+    else{warnEl.style.display='none';warnEl.textContent=''}
+  }
+  let html='';
+  [..._return].reverse().forEach(r=>{
+    html+=`<tr>
+      <td>${isoDate(r.tanggal)}</td>
+      <td>${r.agen_nama||'-'}</td>
+      <td>${fmt(r.qty)}</td>
+      <td>${rp(r.harga_return)}</td>
+      <td>${rp(r.qty*r.harga_return)}</td>
+      <td>${r.catatan||'—'}</td>
+    </tr>`;
+  });
+  document.getElementById('returnBody').innerHTML=html||'<tr><td colspan="6" style="text-align:center;color:#aaa">Tidak ada data return</td></tr>';
+}
+
+// ---- Helper: recompute & cek stok tidak minus ----
+function recomputeAndValidate(){
+  // Hitung ulang FIFO dari data terkini
+  const kulakBatches=_kulak.map(k=>({harga:Number(k.harga_beli)||0,sisa:Number(k.qty)||0}));
+  const returnBatches=_return.map(r=>({harga:Number(r.harga_return)||0,sisa:Number(r.qty)||0}));
+  const allBatches=[..._kulak.map(k=>({tgl:isoDate(k.tanggal),harga:Number(k.harga_beli)||0,sisa:Number(k.qty)||0})),
+    ..._return.map(r=>({tgl:isoDate(r.tanggal),harga:Number(r.harga_return)||0,sisa:Number(r.qty)||0}))
+  ].sort((a,b)=>a.tgl.localeCompare(b.tgl));
+  const sells=[..._jual].sort((a,b)=>isoDate(a.tanggal).localeCompare(isoDate(b.tanggal)));
+  for(const sell of sells){
+    let rem=Number(sell.qty)||0;
+    for(const b of allBatches){
+      if(rem<=0)break;
+      const used=Math.min(b.sisa,rem);
+      b.sisa-=used;rem-=used;
+    }
+    if(rem>0)return false; // stok minus
+  }
+  return true;
+}
+
+// ---- Helper: recompute stok agen sepenuhnya dari transaksi_transfer + transaksi_jual_agen + transaksi_return ----
+async function recomputeAgenStok(agenId){
+  const qTr=query(collection(db,'transaksi_transfer'),where('agen_id','==',agenId));
+  const trSnap=await getDocs(qTr);
+  const transfers=trSnap.docs.map(d=>({...d.data(),_tgl:isoDate(d.data().tanggal)}));
+  const qJual=query(collection(db,'transaksi_jual_agen'),where('agen_id','==',agenId));
+  const jSnap=await getDocs(qJual);
+  const juals=jSnap.docs.map(d=>({...d.data()}));
+  const qRet=query(collection(db,'transaksi_return'),where('agen_id','==',agenId));
+  const rSnap=await getDocs(qRet);
+  const returs=rSnap.docs.map(d=>({...d.data()}));
+  // Bug #3 fix: sort batches berdasarkan tanggal untuk FIFO yang benar
+  const batches=transfers
+    .sort((a,b)=>a._tgl.localeCompare(b._tgl))
+    .map(t=>({harga:Number(t.harga_jual)||0,sisa:Number(t.qty)||0}));
+  const sells=[...juals,...returs].sort((a,b)=>isoDate(a.tanggal).localeCompare(isoDate(b.tanggal)));
+  let totalNilai=0;
+  for(const sell of sells){
+    let rem=Number(sell.qty)||0;
+    for(const b of batches){if(rem<=0)break;const used=Math.min(b.sisa,rem);b.sisa-=used;rem-=used;}
+  }
+  const stokKg=batches.reduce((s,b)=>s+b.sisa,0);
+  for(const b of batches) totalNilai+=b.sisa*b.harga;
+  return {stokKg:Math.max(0,stokKg),nilaiStok:Math.max(0,totalNilai)};
+}
+
+// ---- Helper: cek stok agen tidak minus setelah perubahan ----
+async function validateAgenStokNotNegative(agenId,extraQtyOut=0,excludeTransferId=null){
+  const qTr=query(collection(db,'transaksi_transfer'),where('agen_id','==',agenId));
+  const trSnap=await getDocs(qTr);
+  let transfers=trSnap.docs.map(d=>({id:d.id,...d.data()}));
+  if(excludeTransferId) transfers=transfers.filter(t=>t.id!==excludeTransferId);
+  const qJual=query(collection(db,'transaksi_jual_agen'),where('agen_id','==',agenId));
+  const jSnap=await getDocs(qJual);
+  const juals=jSnap.docs.map(d=>({...d.data()}));
+  const qRet=query(collection(db,'transaksi_return'),where('agen_id','==',agenId));
+  const rSnap=await getDocs(qRet);
+  const returs=rSnap.docs.map(d=>({...d.data()}));
+  // Bug #4 fix: simulasi FIFO nyata, bukan sekadar jumlah total
+  const batches=transfers
+    .sort((a,b)=>isoDate(a.tanggal).localeCompare(isoDate(b.tanggal)))
+    .map(t=>({sisa:Number(t.qty)||0}));
+  // Tambahkan extraQtyOut sebagai event keluar fiktif di akhir
+  const allOut=[...juals,...returs].sort((a,b)=>isoDate(a.tanggal).localeCompare(isoDate(b.tanggal)));
+  for(const ev of allOut){
+    let rem=Number(ev.qty)||0;
+    for(const b of batches){if(rem<=0)break;const used=Math.min(b.sisa,rem);b.sisa-=used;rem-=used;}
+    if(rem>0)return false;
+  }
+  if(extraQtyOut>0){
+    let rem=extraQtyOut;
+    for(const b of batches){if(rem<=0)break;const used=Math.min(b.sisa,rem);b.sisa-=used;rem-=used;}
+    if(rem>0)return false;
+  }
+  return true;
+}
+
+// Edit/Hapus Transaksi
+window.editTx=function(id,type){
+  const arr=type==='kulak'?_kulak:type==='jual'?_jual:_transfer;
+  const tx=arr.find(x=>x.id===id);if(!tx)return;
+  document.getElementById('editTxId').value=id;
+  document.getElementById('editTxType').value=type;
+  document.getElementById('editTxTgl').value=isoDate(tx.tanggal);
+  document.getElementById('editTxQty').value=tx.qty;
+  document.getElementById('editTxHarga').value=type==='kulak'?tx.harga_beli:tx.harga_jual;
+  document.getElementById('editTxNote').value=tx.catatan||'';
+  document.getElementById('modalEditTx').classList.add('active');
+}
+window.saveEditTx=async function(){
+  const id=document.getElementById('editTxId').value;
+  const type=document.getElementById('editTxType').value;
+  const tgl=document.getElementById('editTxTgl').value;
+  const qty=parseFloat(document.getElementById('editTxQty').value);
+  const harga=parseFloat(document.getElementById('editTxHarga').value);
+  const note=document.getElementById('editTxNote').value;
+  const field=type==='kulak'?'harga_beli':'harga_jual';
+  try{
+    if(type==='transfer'){
+      // Edit transfer: update di transaksi_transfer + transaksi_jual terkait + update stok agen + stok admin
+      const tx=_transfer.find(x=>x.id===id);
+      if(!tx){showToast('Data tidak ditemukan','error');return}
+      const agenId=tx.agen_id;
+      const qtyLama=Number(tx.qty)||0;
+      const qtySelisih=qty-qtyLama; // positif = tambah keluar dari admin, negatif = kurang keluar
+
+      // ── Validasi stok ADMIN ──
+      // Simulasi: ganti transaksi_jual terkait transfer ini dengan qty baru, lalu cek stok admin tidak minus
+      {
+        // Buat versi temporer _jual dengan qty transfer ini diupdate
+        const tempJual=_jual.map(j=>{
+          if(tx.jual_id&&j.id===tx.jual_id) return {...j,qty,harga_jual:harga,tanggal:tgl};
+          if(!tx.jual_id&&j.is_transfer&&j.agen_id===agenId&&Number(j.qty)===qtyLama&&isoDate(j.tanggal)===isoDate(tx.tanggal)) return {...j,qty,harga_jual:harga,tanggal:tgl};
+          return j;
+        });
+        const allBatches=[..._kulak.map(k=>({tgl:isoDate(k.tanggal),harga:Number(k.harga_beli)||0,sisa:Number(k.qty)||0})),
+          ..._return.map(r=>({tgl:isoDate(r.tanggal),harga:Number(r.harga_return)||0,sisa:Number(r.qty)||0}))
+        ].sort((a,b)=>a.tgl.localeCompare(b.tgl));
+        const sells=[...tempJual].sort((a,b)=>isoDate(a.tanggal).localeCompare(isoDate(b.tanggal)));
+        let adminValid=true;
+        const batchSim=allBatches.map(b=>({...b}));
+        for(const sell of sells){
+          let rem=Number(sell.qty)||0;
+          for(const b of batchSim){if(rem<=0)break;const used=Math.min(b.sisa,rem);b.sisa-=used;rem-=used;}
+          if(rem>0){adminValid=false;break;}
+        }
+        if(!adminValid){
+          showToast(`⚠️ Stok admin tidak cukup! Qty transfer baru (${fmt(qty)} kg) melebihi stok admin yang tersedia.`,'error');
+          return;
+        }
+      }
+
+      // ── Validasi stok AGEN tidak minus ──
+      const qTr=query(collection(db,'transaksi_transfer'),where('agen_id','==',agenId));
+      const trSnap=await getDocs(qTr);
+      const transfers=trSnap.docs.map(d=>({id:d.id,...d.data()}));
+      const otherTransfers=transfers.filter(t=>t.id!==id);
+      const otherTotal=otherTransfers.reduce((s,t)=>s+Number(t.qty),0);
+      const qJualAgen=query(collection(db,'transaksi_jual_agen'),where('agen_id','==',agenId));
+      const jAgenSnap=await getDocs(qJualAgen);
+      const totalJualAgen=jAgenSnap.docs.reduce((s,d)=>s+Number(d.data().qty),0);
+      const qRet=query(collection(db,'transaksi_return'),where('agen_id','==',agenId));
+      const rSnap=await getDocs(qRet);
+      const totalRetur=rSnap.docs.reduce((s,d)=>s+Number(d.data().qty),0);
+      if(otherTotal+qty<totalJualAgen+totalRetur){
+        showToast(`⚠️ Stok agen tidak cukup! Edit ini menyebabkan stok agen minus.`,'error');
+        return;
+      }
+
+      // ── Lakukan update ──
+      await updateDoc(doc(db,'transaksi_transfer',id),{tanggal:tgl,qty,harga_jual:harga,catatan:note,agen_nama:tx.agen_nama||''});
+      // Update transaksi_jual terkait
+      if(tx.jual_id){
+        await updateDoc(doc(db,'transaksi_jual',tx.jual_id),{tanggal:tgl,qty,harga_jual:harga,catatan:`Transfer ke ${tx.agen_nama||''}`});
+      } else {
+        // Bug #9 fix: gunakan strict equality (===) dan filter lebih ketat untuk hindari ambiguitas
+        const qJ=query(collection(db,'transaksi_jual'),where('agen_id','==',agenId),where('is_transfer','==',true));
+        const jSnap2=await getDocs(qJ);
+        const match=jSnap2.docs.find(d=>{
+          const data=d.data();
+          return Number(data.qty)===Number(tx.qty)&&isoDate(data.tanggal)===isoDate(tx.tanggal);
+        });
+        if(match) await updateDoc(doc(db,'transaksi_jual',match.id),{tanggal:tgl,qty,harga_jual:harga});
+      }
+      // Recompute stok AGEN
+      const {stokKg,nilaiStok}=await recomputeAgenStok(agenId);
+      await setDoc(doc(db,'settings',agenId),{stok_kg:stokKg,nilai_stok:nilaiStok,updated:serverTimestamp()},{merge:true});
+      // Reload & recompute stok ADMIN
+      await loadJual();await loadTransfer();computeFIFO();
+      await setDoc(doc(db,'settings','admin'),{stok_kg:window._stats.totalStok,nilai_stok:window._stats.nilaiStok,moving_average:window._stats.ma},{merge:true});
+      buildDashboard();buildGrafik();
+      showToast('Transfer diperbarui ✅');
+      closeModal('modalEditTx');
+      filterData('transfer','semua',document.querySelector('#sub-dtransfer .filter-btn'));
+      return;
+    }
+    // Untuk kulak/jual admin: validasi stok admin tidak minus setelah edit
+    // Simulasi: ganti data lama dengan baru lalu cek
+    const oldTx=type==='kulak'?_kulak.find(x=>x.id===id):_jual.find(x=>x.id===id);
+    if(!oldTx){showToast('Data tidak ditemukan','error');return}
+    // Cek dengan data baru
+    const tempKulak=type==='kulak'?_kulak.map(k=>k.id===id?{...k,qty,harga_beli:harga,tanggal:tgl}:k):_kulak;
+    const tempJual=type==='jual'?_jual.map(j=>j.id===id?{...j,qty,harga_jual:harga,tanggal:tgl}:j):_jual;
+    const allBatches=[...tempKulak.map(k=>({tgl:isoDate(k.tanggal),harga:Number(k.harga_beli)||0,sisa:Number(k.qty)||0})),
+      ..._return.map(r=>({tgl:isoDate(r.tanggal),harga:Number(r.harga_return)||0,sisa:Number(r.qty)||0}))
+    ].sort((a,b)=>a.tgl.localeCompare(b.tgl));
+    const sells=[...tempJual].sort((a,b)=>isoDate(a.tanggal).localeCompare(isoDate(b.tanggal)));
+    let valid=true;
+    const batchSim=allBatches.map(b=>({...b}));
+    for(const sell of sells){
+      let rem=Number(sell.qty)||0;
+      for(const b of batchSim){if(rem<=0)break;const used=Math.min(b.sisa,rem);b.sisa-=used;rem-=used;}
+      if(rem>0){valid=false;break;}
+    }
+    if(!valid){
+      showToast('⚠️ Cek Stok! Edit ini menyebabkan stok admin minus. Tidak sesuai data jual/transfer yang ada.','error');
+      return;
+    }
+    await updateDoc(doc(db,'transaksi_'+type,id),{tanggal:tgl,qty,[field]:harga,catatan:note});
+    showToast('Transaksi diperbarui ✅');
+    closeModal('modalEditTx');
+    if(type==='kulak'){await loadKulak()}else{await loadJual()}
+    computeFIFO();buildDashboard();buildGrafik();
+    filterData(type,'semua',null);
+  }catch(e){showToast('Error: '+e.message,'error')}
+}
+window.hapusTx=function(id,type){
+  const modal=document.getElementById('modalKonfirmHapus');
+  document.getElementById('modalKonfirmTitle').textContent='Hapus Transaksi?';
+  document.getElementById('modalKonfirmDesc').textContent='Data yang dihapus tidak dapat dikembalikan.';
+  modal.classList.add('active');
+  const btn=document.getElementById('modalKonfirmYa');
+  const newBtn=btn.cloneNode(true);
+  btn.parentNode.replaceChild(newBtn,btn);
+  newBtn.onclick=async function(){
+    closeModal('modalKonfirmHapus');
+    try{
+      if(type==='transfer'){
+        // Hapus transfer: cek stok agen tidak minus
+        const tx=_transfer.find(x=>x.id===id);
+        if(!tx){showToast('Data tidak ditemukan','error');return}
+        const agenId=tx.agen_id;
+
+        // ── Validasi stok ADMIN setelah hapus ──
+        // Transfer dihapus = transaksi_jual terkait ikut dihapus → stok admin bertambah, jadi aman
+        // Tidak perlu validasi admin (hapus transfer = nambah stok admin)
+
+        // ── Validasi stok AGEN tidak minus ──
+        const valid=await validateAgenStokNotNegative(agenId,0,id);
+        if(!valid){
+          showToast('⚠️ Stok agen tidak cukup! Hapus transfer ini menyebabkan stok agen minus karena ada transaksi jual/retur agen yang bergantung padanya.','error');
+          return;
+        }
+
+        // ── Lakukan hapus ──
+        await deleteDoc(doc(db,'transaksi_transfer',id));
+        // Hapus juga transaksi_jual terkait (mengembalikan stok admin)
+        if(tx.jual_id){
+          await deleteDoc(doc(db,'transaksi_jual',tx.jual_id));
+        } else {
+          // Bug #9 fix: strict equality untuk fallback matching
+          const qJ=query(collection(db,'transaksi_jual'),where('agen_id','==',agenId),where('is_transfer','==',true));
+          const jSnap=await getDocs(qJ);
+          const match=jSnap.docs.find(d=>{
+            const data=d.data();
+            return Number(data.qty)===Number(tx.qty)&&isoDate(data.tanggal)===isoDate(tx.tanggal);
+          });
+          if(match) await deleteDoc(doc(db,'transaksi_jual',match.id));
+        }
+        // Recompute stok AGEN
+        const {stokKg,nilaiStok}=await recomputeAgenStok(agenId);
+        await setDoc(doc(db,'settings',agenId),{stok_kg:stokKg,nilai_stok:nilaiStok,updated:serverTimestamp()},{merge:true});
+        // Reload & recompute stok ADMIN
+        await loadJual();await loadTransfer();computeFIFO();
+        await setDoc(doc(db,'settings','admin'),{stok_kg:window._stats.totalStok,nilai_stok:window._stats.nilaiStok,moving_average:window._stats.ma},{merge:true});
+        buildDashboard();buildGrafik();
+        showToast('Transfer dihapus ✅');
+        filterData('transfer','semua',document.querySelector('#sub-dtransfer .filter-btn'));
+        return;
+      }
+      // Untuk kulak/jual: validasi stok admin tidak minus
+      if(type==='kulak'){
+        const tempKulak=_kulak.filter(k=>k.id!==id);
+        const allBatches=[...tempKulak.map(k=>({tgl:isoDate(k.tanggal),harga:Number(k.harga_beli)||0,sisa:Number(k.qty)||0})),
+          ..._return.map(r=>({tgl:isoDate(r.tanggal),harga:Number(r.harga_return)||0,sisa:Number(r.qty)||0}))
+        ].sort((a,b)=>a.tgl.localeCompare(b.tgl));
+        const sells=[..._jual].sort((a,b)=>isoDate(a.tanggal).localeCompare(isoDate(b.tanggal)));
+        let valid=true;
+        const batchSim=allBatches.map(b=>({...b}));
+        for(const sell of sells){
+          let rem=Number(sell.qty)||0;
+          for(const b of batchSim){if(rem<=0)break;const used=Math.min(b.sisa,rem);b.sisa-=used;rem-=used;}
+          if(rem>0){valid=false;break;}
+        }
+        if(!valid){
+          showToast('⚠️ Cek Stok! Hapus kulak ini menyebabkan stok admin minus. Tidak sesuai data jual/transfer yang ada.','error');
+          return;
+        }
+      }
+      if(type==='jual'){
+        const tx=_jual.find(x=>x.id===id);
+        if(tx&&(tx.is_transfer===true||tx.transfer_id||tx.agen_id)){
+          showToast('Gunakan tab Transfer untuk menghapus data transfer ke agen.','error');
+          return;
+        }
+      }
+      await deleteDoc(doc(db,'transaksi_'+type,id));
+      showToast('Transaksi dihapus ✅');
+      // Bug #8 fix: reload data terlebih dahulu sebelum filter & render
+      if(type==='kulak'){await loadKulak()}else{await loadJual()}
+      computeFIFO();buildDashboard();buildGrafik();
+      // Panggil filterData dengan data yang sudah fresh
+      filterData(type,'semua',document.querySelector(`#sub-d${type} .filter-btn`)||null);
+    }catch(e){showToast('Error: '+e.message,'error')}
+  }
+}
+
+// Export Excel
+window.exportExcel=function(type){
+  let data,rows;
+  if(type==='kulak'){
+    data=window._kulakExport||_kulak;
+    rows=data.map(d=>({Tanggal:isoDate(d.tanggal),Qty:d.qty,'Harga Beli':d.harga_beli,Subtotal:d.qty*d.harga_beli,Catatan:d.catatan}));
+  }else if(type==='jual'){
+    data=window._jualExport||_jual.filter(j=>!j.is_transfer);
+    rows=data.map(d=>({Tanggal:isoDate(d.tanggal),Qty:d.qty,'Harga Jual':d.harga_jual,Subtotal:d.qty*d.harga_jual,Catatan:d.catatan}));
+  }else if(type==='transfer'){
+    data=window._transferExport||_transfer;
+    rows=data.map(d=>({Tanggal:isoDate(d.tanggal),Agen:d.agen_nama,Qty:d.qty,'Harga Transfer':d.harga_jual,Subtotal:d.qty*d.harga_jual,Catatan:d.catatan}));
+  }else{data=[];rows=[];}
+  const ws=XLSX.utils.json_to_sheet(rows);
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,type==='kulak'?'Kulak':type==='jual'?'Jual':'Transfer');
+  XLSX.writeFile(wb,`ndokkmu_${type}_${today()}.xlsx`);
+}
+
+// ---- GRAFIK FILTER ----
+let _grafikFilter='semua';
+window.setGrafikFilter=function(range,btn){
+  _grafikFilter=range;
+  document.querySelectorAll('#tab-grafik .filter-btn').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  buildGrafik();
+}
+
+function getGrafikDates(){
+  // Hanya gunakan tanggal yang benar-benar ada data (kulak ATAU jual/transfer)
+  const allDates=[...new Set([..._kulak.map(x=>isoDate(x.tanggal)),..._jual.map(x=>isoDate(x.tanggal)),..._transfer.map(x=>isoDate(x.tanggal))].filter(Boolean).sort())];
+  if(_grafikFilter==='semua') return allDates;
+  if(_grafikFilter==='7'){const d=new Date();d.setDate(d.getDate()-6);const from=d.toISOString().slice(0,10);return allDates.filter(x=>x>=from)}
+  if(_grafikFilter==='30'){const d=new Date();d.setDate(d.getDate()-29);const from=d.toISOString().slice(0,10);return allDates.filter(x=>x>=from)}
+  if(_grafikFilter==='custom'){
+    const from=document.getElementById('grafikDateFrom').value;
+    const to=document.getElementById('grafikDateTo').value;
+    return allDates.filter(x=>(!from||x>=from)&&(!to||x<=to));
+  }
+  return allDates;
+}
+
+// ---- GRAFIK ----
+let _chartHarga=null, _chartMargin=null;
+function buildGrafik(){
+  const allDates=getGrafikDates();
+  if(!allDates.length){
+    if(_chartHarga)_chartHarga.destroy();
+    if(_chartMargin)_chartMargin.destroy();
+    buildTabelHarian(allDates);buildTabelBatch(allDates);buildTabelFifo(allDates);
+    return;
+  }
+
+  // Forward-fill: setiap tanggal di timeline, ambil nilai terakhir yang ada
+  let lastKulak=null, lastJual=null;
+  const hKulak=[], hJual=[];
+  for(const d of allDates){
+    const k=_kulak.filter(x=>isoDate(x.tanggal)===d);
+    const j=[..._jual,..._transfer].filter(x=>isoDate(x.tanggal)===d);
+    if(k.length>0) lastKulak=Number(k[k.length-1].harga_beli);
+    if(j.length>0) lastJual=Number(j[j.length-1].harga_jual);
+    hKulak.push(lastKulak);
+    hJual.push(lastJual);
+  }
+
+  if(_chartHarga)_chartHarga.destroy();
+  _chartHarga=new Chart(document.getElementById('chartHarga').getContext('2d'),{
+    type:'line',
+    data:{labels:allDates,datasets:[
+      {
+        label:'Harga Kulak',data:hKulak,
+        borderColor:'#E74C3C',backgroundColor:'rgba(231,76,60,0.08)',
+        tension:0,fill:false,spanGaps:true,
+        pointRadius:5,pointHoverRadius:8,pointBackgroundColor:'#E74C3C'
+      },
+      {
+        label:'Harga Jual/Transfer',data:hJual,
+        borderColor:'#2ECC71',backgroundColor:'rgba(46,204,113,0.08)',
+        tension:0,fill:false,spanGaps:true,
+        pointRadius:5,pointHoverRadius:8,pointBackgroundColor:'#2ECC71'
+      }
+    ]},
+    options:{
+      responsive:true,
+      interaction:{mode:'index',intersect:false},
+      plugins:{
+        legend:{position:'top'},
+        tooltip:{
+          callbacks:{
+            label:ctx=>{
+              const v=ctx.parsed.y;
+              return v!==null?' '+ctx.dataset.label+': Rp '+v.toLocaleString('id-ID'):'';
+            }
+          }
+        }
+      },
+      scales:{
+        y:{ticks:{callback:v=>'Rp '+v.toLocaleString('id-ID')}},
+        x:{ticks:{maxRotation:45,minRotation:0}}
+      }
+    }
+  });
+
+  // Grafik 2: Moving Average & Margin per tanggal
+  let lastJualHarga=null;
+  const maData=[],marginData=[];
+  for(const d of allDates){
+    const kulakSd=_kulak.filter(x=>isoDate(x.tanggal)<=d);
+    const sqK=kulakSd.reduce((s,x)=>s+Number(x.qty),0);
+    const svK=kulakSd.reduce((s,x)=>s+Number(x.qty)*Number(x.harga_beli),0);
+    const ma=sqK>0?svK/sqK:null;
+    // Bug #7 fix: margin hanya tampil jika ada transaksi jual/transfer di tanggal itu, tidak forward-fill
+    const jPadaHari=[..._jual,..._transfer].filter(x=>isoDate(x.tanggal)===d);
+    const jualHariIni=jPadaHari.length>0?Number(jPadaHari[jPadaHari.length-1].harga_jual):null;
+    maData.push(ma);
+    marginData.push(ma!==null&&jualHariIni!==null?jualHariIni-ma:null);
+  }
+
+  if(_chartMargin)_chartMargin.destroy();
+  _chartMargin=new Chart(document.getElementById('chartMargin').getContext('2d'),{
+    type:'line',
+    data:{labels:allDates,datasets:[
+      {
+        label:'Moving Average Kulak',data:maData,
+        borderColor:'#3498DB',backgroundColor:'rgba(52,152,219,0.08)',
+        tension:0,fill:false,spanGaps:true,
+        pointRadius:5,pointHoverRadius:8,pointBackgroundColor:'#3498DB'
+      },
+      {
+        label:'Margin/kg',data:marginData,
+        borderColor:'#F5A623',backgroundColor:'rgba(245,166,35,0.08)',
+        tension:0,fill:false,spanGaps:true,
+        pointRadius:5,pointHoverRadius:8,pointBackgroundColor:'#F5A623'
+      }
+    ]},
+    options:{
+      responsive:true,
+      interaction:{mode:'index',intersect:false},
+      plugins:{
+        legend:{position:'top'},
+        tooltip:{
+          callbacks:{
+            label:ctx=>{
+              const v=ctx.parsed.y;
+              return v!==null?' '+ctx.dataset.label+': Rp '+v.toLocaleString('id-ID'):'';
+            }
+          }
+        }
+      },
+      scales:{
+        y:{ticks:{callback:v=>'Rp '+v.toLocaleString('id-ID')}},
+        x:{ticks:{maxRotation:45,minRotation:0}}
+      }
+    }
+  });
+
+  buildTabelHarian(allDates);
+  buildTabelBatch(allDates);
+  buildTabelFifo(allDates);
+}
+const var_yolk='#F5A623';
+
+function buildTabelHarian(allDates){
+  const dateSet=new Set(allDates);
+
+  // Kumpulkan events: kulak + semua jual (termasuk yg is_transfer) sebagai pengurang stok admin
+  const allEvents=[];
+  for(const k of _kulak)
+    allEvents.push({tgl:isoDate(k.tanggal),type:'kulak',qty:Number(k.qty),harga:Number(k.harga_beli),id:k.id,catatan:k.catatan||''});
+  for(const j of _jual)
+    allEvents.push({tgl:isoDate(j.tanggal),type:j.is_transfer?'transfer':'jual',qty:Number(j.qty),harga:Number(j.harga_jual),id:j.id,catatan:j.catatan||''});
+  allEvents.sort((a,b)=>{
+    if(a.tgl<b.tgl)return -1;
+    if(a.tgl>b.tgl)return 1;
+    if(a.type==='kulak'&&b.type!=='kulak')return -1;
+    if(a.type!=='kulak'&&b.type==='kulak')return 1;
+    return a.id<b.id?-1:1;
+  });
+
+  const runBatches=[];
+  for(const ev of allEvents){
+    const totalSisaPre=runBatches.reduce((s,b)=>s+b.sisa,0);
+    const totalNilaiPre=runBatches.reduce((s,b)=>s+b.sisa*b.harga,0);
+    ev._avg_before=totalSisaPre>0?totalNilaiPre/totalSisaPre:0;
+    if(ev.type==='kulak'){
+      runBatches.push({harga:ev.harga,sisa:ev.qty});
+    } else {
+      let rem=ev.qty;
+      for(const b of runBatches){
+        if(rem<=0)break;
+        const used=Math.min(b.sisa,rem);
+        b.sisa-=used;rem-=used;
+      }
+    }
+    const totalSisa=runBatches.reduce((s,b)=>s+b.sisa,0);
+    const totalNilai=runBatches.reduce((s,b)=>s+b.sisa*b.harga,0);
+    ev._stok=totalSisa;
+    ev._avg=totalSisa>0?totalNilai/totalSisa:0;
+  }
+
+  const events=allDates.length>0?allEvents.filter(ev=>dateSet.has(ev.tgl)):allEvents;
+
+  let html='';
+  window._harianExportData=[];
+  for(const ev of events){
+    const stok=ev._stok;
+    let beli='—',jual='—',masuk='—',keluar='—',margin='—',profit='—',avgFmt='—';
+    if(ev.type==='kulak'){
+      masuk=fmt(ev.qty);
+      beli=rp(ev.harga);
+    } else {
+      const avg=ev._avg_before;
+      keluar=fmt(ev.qty);
+      // Label harga: transfer ke agen atau jual biasa
+      const label=ev.type==='transfer'?`Transfer (${ev.catatan.replace('Transfer ke ','').split(' ')[0]})`:'Jual';
+      jual=`${rp(ev.harga)}<br><small style="color:var(--ink3);font-size:.7rem">${label}</small>`;
+      const m=ev.harga-avg;
+      margin=rp(Math.round(m));
+      avgFmt=avg>0?(Number.isInteger(avg)?rp(avg):'Rp '+avg.toFixed(2).replace('.',',')):'—';
+      // Profit hanya untuk jual biasa (bukan transfer)
+      if(ev.type==='jual'){
+        const p=window._fifoDetail.filter(x=>x.sell_id===ev.id).reduce((s,x)=>s+x.profit,0);
+        profit=rp(Math.round(p));
+      } else {
+        profit='<span style="color:var(--ink4);font-size:.78rem">—</span>';
+      }
+    }
+    const stokFmt=Number.isInteger(stok)?fmt(stok):stok.toFixed(2).replace('.',',');
+    html+=`<tr>
+      <td>${ev.tgl}</td>
+      <td>${masuk}</td><td>${beli}</td>
+      <td>${keluar}</td><td>${jual}</td>
+      <td>${stokFmt}</td>
+      <td>${avgFmt}</td>
+      <td>${margin}</td>
+      <td>${profit}</td>
+    </tr>`;
+    window._harianExportData.push({
+      Tanggal:ev.tgl,
+      Type:ev.type==='kulak'?'Kulak':ev.type==='transfer'?'Transfer':'Jual',
+      'Masuk (kg)':ev.type==='kulak'?ev.qty:0,
+      'Harga Beli':ev.type==='kulak'?ev.harga:0,
+      'Keluar (kg)':ev.type!=='kulak'?ev.qty:0,
+      'Harga Jual/Transfer':ev.type!=='kulak'?ev.harga:0,
+      'Stok Akhir':parseFloat(stok.toFixed(2)),
+      'Moving Average':ev.type!=='kulak'?parseFloat(ev._avg_before.toFixed(2)):0,
+      'Margin/kg':ev.type!=='kulak'?Math.round(ev.harga-ev._avg_before):0,
+      Catatan:ev.catatan
+    });
+  }
+  document.getElementById('tblHarian').innerHTML=html||'<tr><td colspan="9" style="text-align:center;color:#aaa">Tidak ada data</td></tr>';
+}
+
+function buildTabelBatch(allDates){
+  const dateSet=allDates?new Set(allDates):null;
+  let html='';
+  window._batchExportData=[];
+  for(const b of _batches){
+    if(dateSet&&!dateSet.has(b.tgl))continue;
+    const statusLabel=b.sisa<=0?'Habis':b.sisa<b.masuk?'Sebagian':'Ada';
+    const statusBadge=b.sisa<=0?'<span class="badge badge-red">Habis</span>':
+      b.sisa<b.masuk?'<span class="badge badge-yellow">Sebagian</span>':
+      '<span class="badge badge-green">Ada</span>';
+    // Bug #12 fix: satu loop saja, export data dan HTML dibangun bersamaan
+    html+=`<tr>
+      <td>${b.tgl}</td><td>${fmt(b.masuk)}</td><td>${rp(b.harga)}</td>
+      <td>${fmt(b.terjual)}</td><td>${fmt(Math.round(b.sisa))}</td>
+      <td>${rp(Math.round(b.profit))}</td><td>${statusBadge}</td>
+    </tr>`;
+    window._batchExportData.push({'Tgl Batch':b.tgl,'Masuk (kg)':b.masuk,'Harga Kulak':b.harga,'Terjual':b.terjual,'Sisa (kg)':Math.round(b.sisa),'Total Profit':Math.round(b.profit),Status:statusLabel});
+  }
+  document.getElementById('tblBatch').innerHTML=html||'<tr><td colspan="7" style="text-align:center;color:#aaa">Tidak ada data</td></tr>';
+}
+
+function buildTabelFifo(allDates){
+  const dateSet=allDates?new Set(allDates):null;
+  let html='';
+  window._fifoExportData=[];
+  const filtered=(window._fifoDetail||[]).filter(f=>!dateSet||dateSet.has(f.tgl_jual));
+  for(const f of filtered){
+    html+=`<tr>
+      <td>${f.tgl_jual}</td><td>${f.tgl_batch}</td>
+      <td>${fmt(f.qty)}</td><td>${rp(f.harga_jual)}</td>
+      <td>${rp(f.harga_kulak)}</td><td>${rp(f.margin)}</td>
+      <td style="font-weight:600;color:${f.profit>=0?'var(--green)':'var(--red)'}">${rp(Math.round(f.profit))}</td>
+    </tr>`;
+    window._fifoExportData.push({'Tgl Jual':f.tgl_jual,'Tgl Batch':f.tgl_batch,'Qty (kg)':f.qty,'Harga Jual':f.harga_jual,'Harga Kulak':f.harga_kulak,'Margin/kg':f.margin,'Profit':Math.round(f.profit)});
+  }
+  const totalFifo=filtered.reduce((s,f)=>s+f.profit,0);
+  document.getElementById('tblFifo').innerHTML=html||'<tr><td colspan="7" style="text-align:center;color:#aaa">Tidak ada data</td></tr>';
+  document.getElementById('fifoValidasi').textContent=`Urutan batch sudah benar. | Total profit: ${rp(Math.round(totalFifo))}`;
+}
+
+// Export Harian
+window.exportHarian=function(){
+  const data=window._harianExportData||[];
+  if(!data.length){showToast('Tidak ada data untuk diexport','error');return}
+  const ws=XLSX.utils.json_to_sheet(data);
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'Harian');
+  XLSX.writeFile(wb,`ndokkmu_harian_${today()}.xlsx`);
+}
+window.exportBatch=function(){
+  const data=window._batchExportData||[];
+  if(!data.length){showToast('Tidak ada data untuk diexport','error');return}
+  const ws=XLSX.utils.json_to_sheet(data);
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'Batch FIFO');
+  XLSX.writeFile(wb,`ndokkmu_batch_${today()}.xlsx`);
+}
+window.exportFifo=function(){
+  const data=window._fifoExportData||[];
+  if(!data.length){showToast('Tidak ada data untuk diexport','error');return}
+  const ws=XLSX.utils.json_to_sheet(data);
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'FIFO');
+  XLSX.writeFile(wb,`ndokkmu_fifo_${today()}.xlsx`);
+}
+
+// ---- Logout ----
+window.doLogout=async function(){
+  await signOut(auth);
+  window.location.href='index.html';
+}
+
+// ---- Tab Navigation ----
+window.switchTab=function(tab){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nb').forEach(n=>n.classList.remove('on'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  const nbEl=document.getElementById('nb-'+tab);if(nbEl)nbEl.classList.add('on');
+}
+window.switchSubTab=function(sub,btn){
+  ['kulak','jual','transfer'].forEach(s=>{document.getElementById('sub-'+s).style.display='none'});
+  document.getElementById('sub-'+sub).style.display='';
+  btn.closest('div').querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+window.switchDataTab=function(sub,btn){
+  ['dkulak','djual','dtransfer','dreturn'].forEach(s=>{document.getElementById('sub-'+s).style.display='none'});
+  document.getElementById('sub-'+sub).style.display='';
+  btn.closest('div').querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// ---- Modal ----
+window.closeModal=function(id){document.getElementById(id).classList.remove('active')}
+document.querySelectorAll('.modal-overlay').forEach(o=>{
+  o.addEventListener('click',function(e){if(e.target===this)this.classList.remove('active')})
+});
+
+// ---- Sidebar (stub) ----
+window.toggleSidebar=function(){}
+window.closeSidebar=function(){}
+</script>
+</body>
+</html>
